@@ -1,0 +1,42 @@
+{
+  "name": "ems",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=26.13.1 <27",
+    "npm": ">=11.20.0 <12"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --workspace=@ems/api",
+    "dev:web": "npm run dev --workspace=@ems/web",
+    "build": "npm run build --workspace=@ems/shared && npm run build --workspace=@ems/api && npm run build --workspace=@ems/web",
+    "typecheck": "npm run typecheck --workspace=@ems/shared && npm run typecheck --workspace=@ems/api && npm run typecheck --workspace=@ems/web",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:setup": "npm run db:setup --workspace=@ems/api",
+    "db:seed": "npm run db:seed --workspace=@ems/api",
+    "auth:seed-admin": "npm run auth:seed-admin --workspace=@ems/api --",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:seed-demo": "npm run db:seed-demo --workspace=@ems/api --",
+    "test:public": "vitest run --config vitest.public.config.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^9.2.5",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "prettier": "^3.10.1",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.1.0"
+  }
+}

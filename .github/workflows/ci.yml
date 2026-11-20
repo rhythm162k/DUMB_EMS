@@ -1,0 +1,223 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: ems_test
+          POSTGRES_PASSWORD: ems_test_password
+          POSTGRES_DB: ems_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ems_test -d ems_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure test environment
+        run: |
+          cat > .env.test <<'EOF'
+          NODE_ENV=test
+          PORT=3001
+          POSTGRES_HOST=127.0.0.1
+          POSTGRES_PORT=5432
+          POSTGRES_USER=ems_test
+          POSTGRES_PASSWORD=ems_test_password
+          POSTGRES_DB=ems_test
+          SESSION_SECRET=ci-test-session-secret-at-least-32-characters-long
+          SESSION_COOKIE_SECURE=false
+          SESSION_MAX_AGE_HOURS=1
+          BCRYPT_COST=10
+          WEB_ORIGIN=http://localhost:5173
+          EOF
+
+      - name: Automated API tests
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    name: Deploy to EC2
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: ems-production-deployment
+      cancel-in-progress: false
+    env:
+      AWS_REGION: ap-south-1
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+      SECURITY_GROUP_ID: ${{ secrets.EC2_SECURITY_GROUP_ID }}
+      AWS_PAGER: ""
+
+    steps:
+      - name: Check out the commit that passed CI
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Show OIDC identity
+        uses: actions/github-script@v9.0.0
+        with:
+          script: |
+            const token = await core.getIDToken('sts.amazonaws.com');
+            const claims = JSON.parse(
+              Buffer.from(token.split('.')[1], 'base64url').toString()
+            );
+            core.info(JSON.stringify({
+              sub: claims.sub,
+              aud: claims.aud,
+              iss: claims.iss
+            }, null, 2));
+
+      - name: Obtain temporary AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-south-1
+          role-duration-seconds: 3600
+          role-session-name: EMS-Deploy-${{ github.run_id }}
+
+      - name: Configure verified SSH connection
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/ems_deploy
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/ems_deploy ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<'EOF'
+          Host *
+            IdentityFile ~/.ssh/ems_deploy
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            BatchMode yes
+            ConnectTimeout 15
+            ServerAliveInterval 15
+            ServerAliveCountMax 4
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Find runner IPv4 address
+        id: runner
+        run: |
+          set -euo pipefail
+          RUNNER_IP=$(curl -4fsS --retry 3 --max-time 15 https://checkip.amazonaws.com | tr -d '\r\n')
+          python3 -c 'import ipaddress,sys; ipaddress.IPv4Address(sys.argv[1])' "$RUNNER_IP"
+          echo "cidr=$RUNNER_IP/32" >> "$GITHUB_OUTPUT"
+
+      - name: Allow temporary SSH access
+        id: allow_ssh
+        env:
+          RUNNER_CIDR: ${{ steps.runner.outputs.cidr }}
+        run: |
+          set -euo pipefail
+          aws ec2 authorize-security-group-ingress \
+            --group-id "$SECURITY_GROUP_ID" \
+            --protocol tcp --port 22 --cidr "$RUNNER_CIDR"
+
+      - name: Wait for SSH access
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 12); do
+            if ssh "$EC2_USER@$EC2_HOST" 'test -d /home/ec2-user/ems && test -f /home/ec2-user/ems/.env && command -v rsync && sudo -n docker compose version'; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'SSH or server prerequisites failed.' >&2
+          exit 1
+
+      - name: Transfer application source
+        run: |
+          set -euo pipefail
+          # Root transfer does not delete server-only files such as Caddy configuration.
+          rsync -az --exclude='.git/' --exclude='.github/' \
+            --exclude='.env*' --exclude='storage/' --exclude='caddy/' \
+            --exclude='backups/' --exclude='node_modules/' --exclude='dist/' \
+            ./ "$EC2_USER@$EC2_HOST:/home/ec2-user/ems/"
+          # Remove obsolete source files only within the two managed source directories.
+          for directory in apps packages; do
+            rsync -az --delete --exclude='.env*' --exclude='storage/' \
+              --exclude='node_modules/' --exclude='dist/' \
+              "$directory/" "$EC2_USER@$EC2_HOST:/home/ec2-user/ems/$directory/"
+          done
+
+      - name: Build and restart the application
+        timeout-minutes: 20
+        run: |
+          set -euo pipefail
+          ssh "$EC2_USER@$EC2_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          cd /home/ec2-user/ems
+          # Keep the original Compose project name and its existing named volumes.
+          sudo -n docker compose -p ems config --quiet
+          # Build first: existing containers keep running if compilation fails.
+          sudo -n docker compose -p ems build --pull api web
+          # Database schema migrations must be handled separately; never reseed here.
+          sudo -n docker compose -p ems up -d --no-deps --no-build --wait --wait-timeout 180 api web
+          curl -fsS --retry 6 --retry-delay 5 --retry-connrefused --max-time 15 \
+            http://127.0.0.1:3000/api/v1/ready >/dev/null
+          curl -fsS --retry 6 --retry-delay 5 --retry-connrefused --max-time 15 \
+            http://127.0.0.1:5173/ >/dev/null
+          REMOTE
+
+      - name: Check the public website and API
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 6 --retry-delay 5 --retry-connrefused --max-time 20 \
+            https://payraport.duckdns.org/api/v1/ready >/dev/null
+          curl -fsS --retry 6 --retry-delay 5 --retry-connrefused --max-time 20 \
+            https://payraport.duckdns.org/ >/dev/null
+
+      - name: Remove temporary SSH access
+        if: ${{ always() && steps.allow_ssh.outcome == 'success' }}
+        env:
+          RUNNER_CIDR: ${{ steps.runner.outputs.cidr }}
+        run: |
+          set -euo pipefail
+          # Runs on success, failure, or normal cancellation. A lost runner may require manual cleanup.
+          aws ec2 revoke-security-group-ingress \
+            --group-id "$SECURITY_GROUP_ID" \
+            --protocol tcp --port 22 --cidr "$RUNNER_CIDR"
+
+      - name: Remove local SSH key
+        if: ${{ always() }}
+        run: rm -f ~/.ssh/ems_deploy

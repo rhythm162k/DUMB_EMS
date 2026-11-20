@@ -1,0 +1,126 @@
+/* Match the leave form and table surfaces using the existing page tokens. */
+.day-off-balances {
+  margin: 0 0 var(--s-8);
+  box-shadow: var(--shadow-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  padding: var(--s-6);
+  min-width: 0;
+}
+.day-off-balances .day-off-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-3);
+  margin: 0 0 var(--s-3);
+}
+.day-off-heading h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 18px;
+}
+.day-off-as-of {
+  color: var(--muted);
+  font-size: 12px;
+}
+.day-off-balances .page-description {
+  margin: 0;
+  max-width: 85ch;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.day-off-balances .day-off-toolbar {
+  display: flex;
+  margin: var(--s-5) 0 var(--s-4);
+}
+.day-off-toolbar .search-field {
+  flex: 0 1 440px;
+  width: 100%;
+  max-width: 440px;
+}
+.day-off-toolbar .search-field:focus-within {
+  box-shadow: 0 0 0 3px var(--g-100);
+  border-color: var(--g-700);
+}
+.day-off-balances .leave-table-wrap {
+  margin-bottom: 0;
+}
+.day-off-caption {
+  border-bottom: 1px solid var(--border);
+  padding: var(--s-3) var(--s-4);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: left;
+}
+.day-off-balances .leave-table thead th {
+  min-width: 90px;
+  max-width: 160px;
+  line-height: 1.6;
+  white-space: normal;
+}
+.day-off-balances .leave-table .day-off-employee {
+  border-bottom: 1px solid #edf1ee;
+  background: var(--surface);
+  min-width: 175px;
+  font-size: 13px;
+  text-align: left;
+}
+.day-off-employee-link,
+.day-off-employee-link:visited {
+  color: var(--g-800);
+  font-weight: 600;
+  text-decoration: none;
+}
+.day-off-employee-link:hover {
+  color: var(--g-700);
+  text-decoration: underline;
+}
+.day-off-employee-code {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 11px;
+}
+.day-off-credit {
+  display: inline-block;
+  border-radius: var(--r-pill);
+  background: var(--g-50);
+  padding: 3px 10px;
+  min-width: 38px;
+  color: var(--g-800);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.day-off-credit--advance {
+  background: var(--amber-tint);
+  color: #80500c;
+}
+.day-off-notice {
+  margin: var(--s-4) 0 0;
+  border: 1px solid var(--g-200);
+  border-radius: var(--r-sm);
+  background: var(--g-50);
+  padding: var(--s-3) var(--s-4);
+  color: var(--g-800);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.day-off-balances .day-off-pagination {
+  margin-top: var(--s-4);
+  border-top: 1px solid var(--border);
+  padding: var(--s-4) 0 0;
+}
+.no-employee {
+  margin-top: 0.5rem;
+}
+@media (max-width: 600px) {
+  .day-off-balances {
+    padding: var(--s-4);
+  }
+  .day-off-heading h2 {
+    font-size: 16px;
+  }
+}

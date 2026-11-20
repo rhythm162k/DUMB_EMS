@@ -1,0 +1,93 @@
+.dept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.dept-card {
+  appearance: none;
+  text-align: left;
+  border: 1px solid #dce5eb;
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px;
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  color: #183a29;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.dept-card:hover,
+.dept-card:focus-visible {
+  border-color: #159d91;
+  box-shadow: 0 0 0 2px #d6f2ee;
+  outline: none;
+}
+.dept-card-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+.dept-card-bn {
+  color: #607b8a;
+  font-size: 13px;
+}
+.dept-card-count {
+  margin-top: auto;
+  color: #657e8d;
+  font-size: 13px;
+}
+.dept-card-count strong {
+  font-size: 27px;
+  color: #183a29;
+  margin-right: 4px;
+}
+.dept-card-view {
+  font-size: 12px;
+  color: #087f3e;
+  font-weight: 700;
+}
+.dept-back {
+  background: white;
+  border: 1px solid #dce5eb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  color: #183a29;
+}
+.dept-detail-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 0 0 22px;
+}
+.dept-detail-heading h2 {
+  margin: 0 0 6px;
+  color: #183a29;
+}
+.dept-detail-heading p {
+  margin: 4px 0;
+  color: #607b8a;
+}
+.dept-search {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.dept-search-label {
+  color: #607b8a;
+  font-size: 12px;
+}
+.dept-search input {
+  border: 1px solid #dce5eb;
+  border-radius: 7px;
+  background: white;
+  padding: 11px 12px;
+  min-width: 240px;
+  font: inherit;
+}
