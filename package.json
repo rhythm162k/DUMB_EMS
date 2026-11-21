@@ -20,7 +20,7 @@
     "build": "npm run build --workspace=@ems/shared && npm run build --workspace=@ems/api && npm run build --workspace=@ems/web",
     "build:worker": "npm run build:worker --workspace=@ems/web && wrangler deploy --config apps/api/worker/wrangler.jsonc --dry-run --outdir .wrangler/bundle",
     "typecheck": "npm run typecheck --workspace=@ems/shared && npm run typecheck --workspace=@ems/api && npm run typecheck --workspace=@ems/web && npm run typecheck:worker",
-    "typecheck:worker": "wrangler types --config apps/api/worker/wrangler.jsonc .wrangler/worker-configuration.d.ts && tsc -p apps/api/worker/tsconfig.json",
+    "typecheck:worker": "mkdir -p .wrangler && wrangler types --config apps/api/worker/wrangler.jsonc .wrangler/worker-configuration.d.ts && tsc -p apps/api/worker/tsconfig.json",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
