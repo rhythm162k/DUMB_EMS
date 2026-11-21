@@ -1,13 +1,13 @@
 {
   "$schema": "../../../node_modules/wrangler/config-schema.json",
-  "name": "ems-portfolio-demo",
+  "name": "dumb-ems",
   "main": "index.ts",
   "compatibility_date": "2026-10-23",
   "compatibility_flags": [
     "nodejs_compat",
     "nodejs_compat_do_not_populate_process_env",
   ],
-  "workers_dev": false,
+  "workers_dev": true,
   "preview_urls": false,
   "minify": true,
   "send_metrics": false,
@@ -25,6 +25,12 @@
       "simple": { "limit": 30, "period": 60 },
     },
   ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+    },
+  },
   "assets": {
     "directory": "../../web/dist-worker",
     "not_found_handling": "single-page-application",
