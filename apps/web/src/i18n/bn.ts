@@ -157,7 +157,7 @@ export const bn: Record<string, string> = {
   "Profile image removed.": "প্রোফাইল ছবি সরানো হয়েছে।",
   "JPEG, PNG or WebP; maximum 5 MB. Use fictional demo images only.":
     "পাসপোর্ট আকারের পরিষ্কার ছবি বেছে নিন, সর্বোচ্চ ৫ মেগাবাইট (JPG, PNG বা WebP)।",
-  "Sign in to Payra EMS": "পায়রা ইএমএসে সাইন ইন করুন",
+  "Sign in to EMS": "ইএমএসে সাইন ইন করুন",
   "Enter your employee ID": "আপনার কর্মচারী আইডি লিখুন",
   "Enter your password": "আপনার পাসওয়ার্ড লিখুন",
   "Current password": "বর্তমান পাসওয়ার্ড",
@@ -184,9 +184,117 @@ export const bn: Record<string, string> = {
   "EMS is unavailable": "ইএমএস বর্তমানে পাওয়া যাচ্ছে না",
   Retry: "আবার চেষ্টা করুন",
   "Please wait…": "অপেক্ষা করুন…",
-  "PAYRA PORT": "পায়রা বন্দর",
-  "PAYRA SEA PORT": "পায়রা সমুদ্র বন্দর",
-  "Payra Sea Port EMS": "পায়রা সমুদ্র বন্দর ইএমএস",
+  "Welcome to EMS": "ইএমএসে স্বাগতম",
+  "Select a role to continue.": "চালিয়ে যেতে একটি ভূমিকা বেছে নিন।",
+  "Full Administrator": "পূর্ণ প্রশাসক",
+  "Department Administrator": "বিভাগীয় প্রশাসক",
+  Operations: "পরিচালনা",
+  "People & Administration": "জনবল ও প্রশাসন",
+  "People and Administration": "জনবল ও প্রশাসন",
+  Current: "বর্তমান",
+  "Checking your session…": "আপনার সেশন যাচাই করা হচ্ছে…",
+  "Your session has ended. Please select a role to continue.":
+    "আপনার সেশন শেষ হয়েছে। চালিয়ে যেতে একটি ভূমিকা বেছে নিন।",
+  "Unable to start your session. Please try again.":
+    "সেশন শুরু করা যায়নি। আবার চেষ্টা করুন।",
+  "Sample records only. Please use sample information.":
+    "এখানে শুধু নমুনা রেকর্ড রয়েছে। অনুগ্রহ করে নমুনা তথ্য ব্যবহার করুন।",
+  "Session settings": "সেশন সেটিংস",
+  "Switch role": "ভূমিকা বদলান",
+  "Reset sample data": "নমুনা তথ্য ফিরিয়ে আনুন",
+  "Resetting removes changes made in this session.":
+    "নমুনা তথ্য ফিরিয়ে আনলে এই সেশনের পরিবর্তনগুলো মুছে যাবে।",
+  "Reset sample data and discard your changes?":
+    "নমুনা তথ্য ফিরিয়ে এনে আপনার পরিবর্তনগুলো মুছে ফেলবেন?",
+  "Reset data": "তথ্য রিসেট করুন",
+  "Only the Full Administrator can assign these roles. Department administrators manage regular employees in their own department.":
+    "শুধু পূর্ণ প্রশাসক এই ভূমিকাগুলো দিতে পারেন। বিভাগীয় প্রশাসক শুধু নিজের বিভাগের সাধারণ কর্মচারীদের তথ্য পরিচালনা করেন।",
+  "View leave history.": "ছুটির ইতিহাস দেখুন।",
+  "Leave request review": "ছুটির আবেদন পর্যালোচনা",
+  "My leave requests": "আমার ছুটির আবেদন",
+  "Submit leave request": "ছুটির আবেদন জমা দিন",
+  "No leave requests found.": "কোনো ছুটির আবেদন পাওয়া যায়নি।",
+  Reason: "কারণ",
+  "Edit department": "বিভাগ সম্পাদনা করুন",
+  "Add department": "বিভাগ যোগ করুন",
+  "Save department": "বিভাগ সংরক্ষণ করুন",
+  "English name": "ইংরেজি নাম",
+  "Bangla name": "বাংলা নাম",
+  "Department status": "বিভাগের অবস্থা",
+  "Choose a clear photo (JPG, PNG or WebP, up to 5 MB).":
+    "একটি স্পষ্ট ছবি বেছে নিন (JPG, PNG বা WebP, সর্বোচ্চ ৫ এমবি)।",
+  "Choose a valid JPG, PNG or WebP photo.":
+    "সঠিক JPG, PNG বা WebP ছবি বেছে নিন।",
+  "Select fewer employees and try again.":
+    "কম সংখ্যক কর্মচারী বেছে নিয়ে আবার চেষ্টা করুন।",
+  "A request is already waiting for review.":
+    "একটি অনুরোধ ইতিমধ্যে পর্যালোচনার অপেক্ষায় রয়েছে।",
+  "Request removal of this record? An administrator must approve it.":
+    "এই রেকর্ডটি সরানোর অনুরোধ করবেন? একজন প্রশাসকের অনুমোদন লাগবে।",
+  "Browse files": "ফাইল বেছে নিন",
+  "No file selected": "কোনো ফাইল বেছে নেওয়া হয়নি",
+  "Could not open this image.": "ছবিটি খোলা যায়নি।",
+  "Could not resize this image. Choose a smaller photo.":
+    "ছবিটির আকার ছোট করা যায়নি। আরও ছোট একটি ছবি বেছে নিন।",
+  "Employment and account status are fixed for this profile.":
+    "এই প্রোফাইলের চাকরি ও অ্যাকাউন্টের অবস্থা পরিবর্তন করা যাবে না।",
+  "Choose the employee ID carefully. It cannot be changed later.":
+    "কর্মচারী আইডি ভেবে বেছে নিন। পরে এটি বদলানো যাবে না।",
+  "Use the template to import up to 12 rows of sample data.":
+    "টেমপ্লেট ব্যবহার করে একবারে সর্বোচ্চ ১২টি সারির নমুনা তথ্য আমদানি করুন।",
+  "Import the selected rows?": "নির্বাচিত সারিগুলো আমদানি করবেন?",
+  "Import the selected rows? New passwords are shown only once.":
+    "নির্বাচিত সারিগুলো আমদানি করবেন? নতুন পাসওয়ার্ড শুধু একবার দেখানো হবে।",
+  "The demo accepts up to 12 rows per import.":
+    "একবারে সর্বোচ্চ ১২টি সারি আমদানি করা যাবে।",
+  "Include private details in this download? This will be logged.":
+    "ডাউনলোডে ব্যক্তিগত তথ্য অন্তর্ভুক্ত করবেন? কাজটি কার্যক্রমের ইতিহাসে থাকবে।",
+  "Imported {count} row.": "{count}টি সারি আমদানি হয়েছে।",
+  "Imported {count} rows.": "{count}টি সারি আমদানি হয়েছে।",
+  "Import employee records or download a copy.":
+    "কর্মচারীর রেকর্ড আমদানি করুন বা একটি কপি ডাউনলোড করুন।",
+  "Import & export": "আমদানি ও রপ্তানি",
+  "Import preview": "আমদানির প্রিভিউ",
+  "{valid} of {total} rows are ready to import.":
+    "{total}টি সারির মধ্যে {valid}টি আমদানির জন্য প্রস্তুত।",
+  "Employees available for export": "রপ্তানির জন্য উপলব্ধ কর্মচারীদের তালিকা",
+  "Select employee {id}": "{id} আইডির কর্মচারী বেছে নিন",
+  "Import row {count}": "{count} নম্বর সারি আমদানি করুন",
+  "Loading activity…": "কার্যক্রমের ইতিহাস লোড হচ্ছে…",
+  "No activity found.": "কোনো কার্যক্রম পাওয়া যায়নি।",
+  "Sample employee added": "নমুনা কর্মচারী যোগ করা হয়েছে",
+  "Employee downloaded their records": "কর্মচারী নিজের রেকর্ড ডাউনলোড করেছেন",
+  "Employee downloaded personal records":
+    "কর্মচারী ব্যক্তিগত রেকর্ড ডাউনলোড করেছেন",
+  "Administrator downloaded personal records":
+    "প্রশাসক ব্যক্তিগত রেকর্ড ডাউনলোড করেছেন",
+  "An administrator must approve changes to your profile.":
+    "আপনার প্রোফাইলের পরিবর্তন একজন প্রশাসককে অনুমোদন করতে হবে।",
+  "To update your details, send a change request. You can change your photo here.":
+    "তথ্য হালনাগাদ করতে পরিবর্তনের অনুরোধ পাঠান। এখানে আপনার ছবি বদলাতে পারেন।",
+  "Employee management": "কর্মচারী ব্যবস্থাপনা",
+  "No employees found.": "কোনো কর্মচারী পাওয়া যায়নি।",
+  "Reason for cancellation (required):": "বাতিলের কারণ (আবশ্যিক):",
+  "Choose leave type": "ছুটির ধরন বেছে নিন",
+  "Remove this profile image?": "এই প্রোফাইলের ছবি সরিয়ে ফেলবেন?",
+  "Employee records": "কর্মচারীদের রেকর্ড",
+  "Department employees": "বিভাগের কর্মচারীরা",
+  "Degrees, institutions and academic results.":
+    "ডিগ্রি, শিক্ষাপ্রতিষ্ঠান ও ফলাফল।",
+  "Local and foreign training records.": "দেশি ও বিদেশি প্রশিক্ষণের রেকর্ড।",
+  "Previous service and promotion history.": "পূর্ববর্তী চাকরি ও পদোন্নতির ইতিহাস।",
+  "Historical office postings; this does not change the current department.":
+    "আগের কর্মস্থলের তথ্য। বর্তমান বিভাগ অপরিবর্তিত থাকবে।",
+  "Professional society and association memberships.":
+    "পেশাজীবী সংগঠন ও সমিতির সদস্যপদ।",
+  "Published articles, papers and other works.":
+    "প্রকাশিত নিবন্ধ, গবেষণাপত্র ও অন্যান্য কাজ।",
+  "Delete this spouse record?": "জীবনসঙ্গীর এই রেকর্ডটি মুছে ফেলবেন?",
+  "This employee has an overlapping leave record.":
+    "এই কর্মচারীর একই সময়ে অন্য একটি ছুটির রেকর্ড রয়েছে।",
+  "Records changed during import. Preview the file again.":
+    "আমদানির সময় রেকর্ড বদলেছে। ফাইলের প্রিভিউ আবার দেখুন।",
+  "Loading EMS…": "ইএমএস লোড হচ্ছে…",
   "EMPLOYEE MANAGEMENT": "কর্মচারী ব্যবস্থাপনা",
   "EMPLOYEE RECORD": "কর্মচারীর রেকর্ড",
   "EMPLOYEE CREATED": "কর্মচারী তৈরি হয়েছে",
@@ -196,7 +304,6 @@ export const bn: Record<string, string> = {
   WORKSPACE: "কর্মক্ষেত্র",
   Workspace: "কর্মক্ষেত্র",
   "DEMO ENVIRONMENT": "ডেমো পরিবেশ",
-  "Patuakhali, Bangladesh": "পটুয়াখালী, বাংলাদেশ",
   "Demo environment · Use fictional employee data only":
     "ডেমো পরিবেশ · শুধু কাল্পনিক কর্মচারীর তথ্য ব্যবহার করুন",
   "For demonstration and workflow validation. Use fictional employee data only.":
@@ -489,16 +596,6 @@ export const bn: Record<string, string> = {
   "Toggle navigation": "মেনু খুলুন বা বন্ধ করুন",
   Required: "আবশ্যিক",
   Completed: "সম্পন্ন",
-  "Degrees, institutions and academic results.":
-    "ডিগ্রি, শিক্ষাপ্রতিষ্ঠান ও ফলাফল।",
-  "Local and foreign training records.": "দেশি ও বিদেশি প্রশিক্ষণের রেকর্ড।",
-  "Previous service and promotion history.": "পূর্ববর্তী চাকরি ও পদোন্নতির ইতিহাস।",
-  "Historical office postings; this does not change the current department.":
-    "পূর্ববর্তী পদায়ন; এতে বর্তমান বিভাগ বদলায় না।",
-  "Professional society and association memberships.":
-    "পেশাগত সমিতি ও সংগঠনের সদস্যপদ।",
-  "Published articles, papers and other works.":
-    "প্রকাশিত প্রবন্ধ, গবেষণা ও অন্যান্য কাজ।",
   /* Dashboard + shell redesign */
   Dashboard: "ড্যাশবোর্ড",
   More: "আরও",
@@ -508,9 +605,6 @@ export const bn: Record<string, string> = {
   "Good morning": "শুভ সকাল",
   "Good afternoon": "শুভ অপরাহ্ন",
   "Good evening": "শুভ সন্ধ্যা",
-  "Here is today's snapshot of the port workforce.":
-    "আজকের বন্দর জনবলের সংক্ষিপ্ত চিত্র।",
-  "Payra Port Authority": "পায়রা বন্দর কর্তৃপক্ষ",
   "System status": "সিস্টেমের অবস্থা",
   Server: "সার্ভার",
   Database: "ডাটাবেস",
@@ -552,15 +646,13 @@ export const bn: Record<string, string> = {
   "View employees": "কর্মচারী দেখুন",
   "In your department": "আপনার বিভাগে",
   "Browse employees": "কর্মচারী দেখুন",
-  "Approved by ": "অনুমোদনকারী: ",
-  "Rejected by ": "প্রত্যাখ্যানকারী: ",
+  "Approved by": "অনুমোদনকারী:",
+  "Rejected by": "প্রত্যাখ্যানকারী:",
   Administrator: "প্রশাসক",
   "Browse departments": "বিভাগসমূহ দেখুন",
   Welcome: "স্বাগতম",
   "Your service summary": "আপনার চাকরির সারসংক্ষেপ",
   "Employee Management System": "কর্মচারী ব্যবস্থাপনা পদ্ধতি",
-  "Government of the People's Republic of Bangladesh":
-    "গণপ্রজাতন্ত্রী বাংলাদেশ সরকার",
   "Every personnel record in one place": "প্রতিটি কর্মচারীর তথ্য এক জায়গায়",
   "Available in Bangla and English": "বাংলা ও ইংরেজিতে ব্যবহারযোগ্য",
   "Skip to content": "মূল অংশে যান",

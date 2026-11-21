@@ -8,10 +8,12 @@ export default function AdminAccessForm({
   employeeId,
   accessLevel,
   departmentId,
+  version,
 }: {
   employeeId: string;
   accessLevel: "FULL" | "DEPARTMENT" | null;
   departmentId: string | null;
+  version?: number;
 }) {
   const [access, setAccess] = useState(accessLevel ?? "NONE");
   const [department, setDepartment] = useState(departmentId ?? "");
@@ -38,6 +40,7 @@ export default function AdminAccessForm({
         method: "PUT",
         body: JSON.stringify({
           accessLevel: access,
+          ...(version === undefined ? {} : { version }),
           ...(access === "DEPARTMENT" ? { departmentId: department } : {}),
         }),
       }),
@@ -101,7 +104,7 @@ export default function AdminAccessForm({
         </div>
         <p className="form-note">
           {tr(
-            "Full-access admins can do everything, including making new admins. Department admins can manage only the employees in their department, not other admins.",
+            "Only the Full Administrator can assign these roles. Department administrators manage regular employees in their own department.",
           )}
         </p>
         {save.isError && (

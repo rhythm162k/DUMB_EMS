@@ -1,5 +1,8 @@
 import { RootProtectedError, ScopeError } from "./auth/scope.js";
-import { protectErrorResponses } from "./http/public-errors.js";
+import {
+  protectErrorResponses,
+  respondToBodyParserError,
+} from "./http/public-errors.js";
 import cors from "cors";
 import express, { type ErrorRequestHandler } from "express";
 import helmet from "helmet";
@@ -124,26 +127,7 @@ const errorHandler: ErrorRequestHandler = (error, _req, res, next) => {
     return;
   }
 
-  // Body-parser errors are client mistakes, not server faults.
-  const parserError = error as { type?: string };
-  if (parserError.type === "entity.parse.failed") {
-    res.status(400).json({
-      error: {
-        code: "VALIDATION_ERROR",
-        message: "The request body must be valid JSON.",
-      },
-    });
-    return;
-  }
-  if (parserError.type === "entity.too.large") {
-    res.status(413).json({
-      error: {
-        code: "PAYLOAD_TOO_LARGE",
-        message: "The request body is too large.",
-      },
-    });
-    return;
-  }
+  if (respondToBodyParserError(error, res)) return;
 
   if (
     error instanceof Error &&

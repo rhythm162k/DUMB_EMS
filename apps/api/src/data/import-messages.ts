@@ -1,4 +1,4 @@
-import { allColumns } from "./records.js";
+import { allColumns } from "./columns.js";
 import { SAMPLE_ROW_ERROR } from "./sample.js";
 
 // Security boundary: spreadsheet validation results are turned into reviewed,

@@ -95,6 +95,7 @@ export default function ReadOnlyRecordSections({
                   "employeeId",
                   "createdAt",
                   "updatedAt",
+                  "version",
                   "departmentId",
                 ].includes(k),
             )
@@ -135,6 +136,7 @@ export default function ReadOnlyRecordSections({
                         "employeeId",
                         "createdAt",
                         "updatedAt",
+                        "version",
                         "departmentId",
                       ].includes(k),
                   )

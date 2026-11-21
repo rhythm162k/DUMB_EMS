@@ -1,5 +1,13 @@
-import type { EmployeeDetailRow } from "./repository.js";
-import type { EmployeeListRow } from "./repository.js";
+import type { EmployeeDetailRow, EmployeeListRow } from "./types.js";
+
+type EmployeePresentationRow = Omit<
+  EmployeeDetailRow,
+  "created_at" | "updated_at" | "last_login_at"
+> & {
+  created_at: Date | string;
+  updated_at: Date | string;
+  last_login_at: Date | string | null;
+};
 
 function departmentOf(row: {
   department_id: string | null;
@@ -16,7 +24,7 @@ function departmentOf(row: {
 }
 
 // The employee-facing profile: the person's own record, without account internals.
-export function toEmployeeProfile(row: EmployeeDetailRow) {
+export function toEmployeeProfile(row: EmployeePresentationRow) {
   return {
     id: row.id,
     officialEmployeeId: row.official_employee_id,
@@ -49,7 +57,7 @@ export function toEmployeeProfile(row: EmployeeDetailRow) {
 }
 
 // The admin-facing detail adds account state. Never include password hashes.
-export function toAdminEmployeeDetail(row: EmployeeDetailRow) {
+export function toAdminEmployeeDetail(row: EmployeePresentationRow) {
   return {
     ...toEmployeeProfile(row),
     account: row.account_role

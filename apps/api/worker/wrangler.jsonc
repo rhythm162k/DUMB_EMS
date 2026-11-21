@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../node_modules/wrangler/config-schema.json",
+  "name": "ems-portfolio-demo",
+  "main": "index.ts",
+  "compatibility_date": "2026-10-23",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_compat_do_not_populate_process_env",
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "minify": true,
+  "send_metrics": false,
+  "dev": { "ip": "127.0.0.1", "port": 8787 },
+  "triggers": { "crons": ["*/15 * * * *"] },
+  "ratelimits": [
+    {
+      "name": "DEMO_ENTRY_LIMIT",
+      "namespace_id": "301",
+      "simple": { "limit": 8, "period": 60 },
+    },
+    {
+      "name": "DEMO_WRITE_LIMIT",
+      "namespace_id": "302",
+      "simple": { "limit": 30, "period": 60 },
+    },
+  ],
+  "assets": {
+    "directory": "../../web/dist-worker",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api", "/api/*"],
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ems-demo-local",
+      "migrations_dir": "migrations",
+      // Synthetic ID. The checked-in preview only uses local storage.
+      "database_id": "00000000-0000-4000-8000-000000000000",
+      "remote": false,
+    },
+  ],
+}

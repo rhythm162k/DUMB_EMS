@@ -1,3 +1,5 @@
+import { safeError } from "../../lib/public-errors";
+import LeaveRequests from "./LeaveRequests";
 import DayOffBalances from "./DayOffBalances";
 import { tr } from "../../i18n/language";
 import { useState, type FormEvent } from "react";
@@ -6,6 +8,7 @@ import { apiRequest } from "../../lib/api";
 
 type Leave = {
   id: string;
+  version?: number;
   employeeId: string;
   employeeCode: string;
   employeeName: string;
@@ -43,10 +46,14 @@ function dateOnly(value: string) {
 export default function LeavePage({
   admin,
   fullAdmin = false,
+  readOnly = false,
 }: {
   admin: boolean;
   fullAdmin?: boolean;
+  readOnly?: boolean;
 }) {
+  const canEdit = admin && !readOnly;
+  const canConfigure = fullAdmin && canEdit;
   const queryClient = useQueryClient();
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [employeePage, setEmployeePage] = useState(1);
@@ -56,6 +63,7 @@ export default function LeavePage({
   const [endDate, setEndDate] = useState(today);
   const [remarks, setRemarks] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
+  const [editingVersion, setEditingVersion] = useState<number>();
   const [reason, setReason] = useState("");
   const [year, setYear] = useState(new Date().getFullYear());
   const [holidayDate, setHolidayDate] = useState(today);
@@ -71,6 +79,7 @@ export default function LeavePage({
   });
   const types = useQuery({
     queryKey: ["leave-types"],
+    enabled: !readOnly,
     queryFn: () => apiRequest<{ items: LeaveType[] }>("/leave-types"),
   });
   const holidays = useQuery({
@@ -79,7 +88,7 @@ export default function LeavePage({
   });
   const employees = useQuery({
     queryKey: ["leave-employees", employeeSearch, employeePage],
-    enabled: admin,
+    enabled: canEdit,
     queryFn: () =>
       apiRequest<{ items: Employee[] }>(
         `/admin/employees?pageSize=100&page=${employeePage}&q=${encodeURIComponent(employeeSearch)}`,
@@ -90,17 +99,22 @@ export default function LeavePage({
       path,
       method,
       body,
+      version,
     }: {
       path: string;
       method: string;
       body?: unknown;
+      version?: number;
     }) =>
       apiRequest(path, {
         method,
+        headers: version ? { "If-Match": String(version) } : undefined,
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       }),
     onSuccess: async () => {
       setMessage("Saved successfully.");
+      setEditing(null);
+      setEditingVersion(undefined);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["leaves"] }),
         queryClient.invalidateQueries({ queryKey: ["day-off-balances"] }),
@@ -109,11 +123,16 @@ export default function LeavePage({
         queryClient.invalidateQueries({ queryKey: ["overview-stats"] }),
       ]);
     },
-    onError: () => setMessage("Something went wrong. Please try again."),
+    onError: (error) => setMessage(safeError(error)),
   });
-  const send = (path: string, method: string, body?: unknown) => {
+  const send = (
+    path: string,
+    method: string,
+    body?: unknown,
+    version?: number,
+  ) => {
     setMessage("");
-    mutation.mutate({ path, method, body });
+    mutation.mutate({ path, method, body, version });
   };
   function submitLeave(event: FormEvent) {
     event.preventDefault();
@@ -136,10 +155,12 @@ export default function LeavePage({
         remarks: remarks || null,
         ...(editing ? { reason } : {}),
       },
+      editing ? editingVersion : undefined,
     );
   }
   function edit(row: Leave) {
     setEditing(row.id);
+    setEditingVersion(row.version);
     setEmployeeId(row.employeeId);
     setLeaveTypeId(row.leaveTypeId);
     setStartDate(dateOnly(row.startDate));
@@ -152,12 +173,19 @@ export default function LeavePage({
       <div className="page-heading">
         <h1>{tr("Leave history")}</h1>
         <p className="page-description">
-          {tr("View day-off balances and leave history.")}
+          {tr(
+            readOnly
+              ? "View leave history."
+              : "View day-off balances and leave history.",
+          )}
         </p>
       </div>
       {message && <p role="status">{tr(message)}</p>}
-      <DayOffBalances admin={admin} />
-      {admin && (
+      {!readOnly && <DayOffBalances admin={admin} />}
+      {import.meta.env.MODE === "worker" && (
+        <LeaveRequests admin={admin} types={types.data?.items ?? []} />
+      )}
+      {canEdit && (
         <>
           <div className="section-heading">
             <h2>{tr(editing ? "Correct leave record" : "Record leave")}</h2>
@@ -286,76 +314,87 @@ export default function LeavePage({
       <div className="section-heading">
         <h2>{tr(admin ? "All recorded leave" : "My leave history")}</h2>
       </div>
-      {leaves.isLoading && <p>{tr("Loading leave records…")}</p>}
+      {leaves.isLoading && (
+        <p className="table-message" role="status">
+          {tr("Loading leave records…")}
+        </p>
+      )}
       {leaves.isError && (
         <p role="alert">{tr("Something went wrong. Please try again.")}</p>
       )}
-      <div
-        className="leave-table-wrap"
-        role="region"
-        aria-label={tr("Leave history")}
-        tabIndex={0}
-      >
-        <table className="leave-table">
-          <thead>
-            <tr>
-              {admin && <th>{tr("Employee")}</th>}
-              <th>{tr("Type")}</th>
-              <th>{tr("Dates")}</th>
-              <th>{tr("Days")}</th>
-              <th>{tr("Status")}</th>
-              {admin && <th>{tr("Actions")}</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {(leaves.data?.items ?? []).map((row) => (
-              <tr key={row.id}>
-                {admin && (
-                  <td>
-                    {row.employeeName} ({row.employeeCode})
-                  </td>
-                )}
-                <td>{row.leaveType}</td>
-                <td>
-                  {dateOnly(row.startDate)} – {dateOnly(row.endDate)}
-                </td>
-                <td>{row.dayCount}</td>
-                <td>{tr(row.cancelledAt ? "Cancelled" : "Recorded")}</td>
-                {admin && (
-                  <td>
-                    {!row.cancelledAt && (
-                      <>
-                        <button type="button" onClick={() => edit(row)}>
-                          {tr("Correct")}
-                        </button>{" "}
-                        <button
-                          type="button"
-                          disabled={mutation.isPending}
-                          onClick={() => {
-                            const reason = window.prompt(
-                              tr("Reason for cancellation (required):"),
-                            );
-                            if (reason?.trim())
-                              send(`/admin/leaves/${row.id}/cancel`, "POST", {
-                                reason: reason.trim(),
-                              });
-                          }}
-                        >
-                          {tr("Cancel")}
-                        </button>
-                      </>
-                    )}
-                  </td>
-                )}
+      {!!leaves.data?.items.length && (
+        <div
+          className="leave-table-wrap"
+          role="region"
+          aria-label={tr("Leave history")}
+          tabIndex={0}
+        >
+          <table className="leave-table">
+            <thead>
+              <tr>
+                {admin && <th>{tr("Employee")}</th>}
+                <th>{tr("Type")}</th>
+                <th>{tr("Dates")}</th>
+                <th>{tr("Days")}</th>
+                <th>{tr("Status")}</th>
+                {canEdit && <th>{tr("Actions")}</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {leaves.data?.items.length === 0 && (
-        <p>{tr("No leave records found.")}</p>
+            </thead>
+            <tbody>
+              {(leaves.data?.items ?? []).map((row) => (
+                <tr key={row.id}>
+                  {admin && (
+                    <td>
+                      {row.employeeName} ({row.employeeCode})
+                    </td>
+                  )}
+                  <td>{row.leaveType}</td>
+                  <td>
+                    {dateOnly(row.startDate)} – {dateOnly(row.endDate)}
+                  </td>
+                  <td>{row.dayCount}</td>
+                  <td>{tr(row.cancelledAt ? "Cancelled" : "Recorded")}</td>
+                  {canEdit && (
+                    <td>
+                      {!row.cancelledAt && (
+                        <>
+                          <button type="button" onClick={() => edit(row)}>
+                            {tr("Correct")}
+                          </button>{" "}
+                          <button
+                            type="button"
+                            disabled={mutation.isPending}
+                            onClick={() => {
+                              const reason = window.prompt(
+                                tr("Reason for cancellation (required):"),
+                              );
+                              if (reason?.trim())
+                                send(
+                                  `/admin/leaves/${row.id}/cancel`,
+                                  "POST",
+                                  {
+                                    reason: reason.trim(),
+                                  },
+                                  row.version,
+                                );
+                            }}
+                          >
+                            {tr("Cancel")}
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-      {fullAdmin && (
+      {leaves.data?.items.length === 0 && (
+        <p className="table-message">{tr("No leave records found.")}</p>
+      )}
+      {canConfigure && (
         <>
           <div className="section-heading">
             <h2>{tr("Leave types")}</h2>
@@ -376,7 +415,7 @@ export default function LeavePage({
                 required
                 value={typeCode}
                 onChange={(e) => setTypeCode(e.target.value)}
-                placeholder={tr("SPECIAL")}
+                placeholder="SPECIAL"
               />
             </label>
             <label>
@@ -426,7 +465,7 @@ export default function LeavePage({
           onChange={(e) => setYear(Number(e.target.value))}
         />
       </label>
-      {fullAdmin && (
+      {canConfigure && (
         <form
           className="leave-form"
           onSubmit={(e) => {
@@ -472,7 +511,7 @@ export default function LeavePage({
         {holidays.data?.items.map((h) => (
           <div key={h.id}>
             {dateOnly(h.holidayDate)} — {h.nameEn}
-            {fullAdmin && (
+            {canConfigure && (
               <button
                 disabled={mutation.isPending}
                 onClick={() => {

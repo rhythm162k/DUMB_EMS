@@ -109,6 +109,19 @@ describe("Public error boundary", () => {
       expect(responseError(500, message)).toBe(publicMessages[0]);
     }
   });
+  it("uses reviewed guidance for known conflict codes and ignores unknown details", () => {
+    const conflict =
+      "This information has changed. Refresh the page and try again.";
+    const duplicate = "An employee with this ID already exists.";
+    expect(responseError(409, conflict, "EMPLOYEE_ID_TAKEN")).toBe(duplicate);
+    expect(safeError(new Error(duplicate))).toBe(duplicate);
+    expect(responseError(409, "SQLITE_CONSTRAINT", "private_code")).toBe(
+      conflict,
+    );
+    expect(responseError(500, "SQLITE_CONSTRAINT", "EMPLOYEE_ID_TAKEN")).toBe(
+      publicMessages[0],
+    );
+  });
   it("keeps the browser and API public messages aligned and translated", () => {
     for (const message of publicMessages) {
       expect(safeError(new Error(message))).toBe(message);

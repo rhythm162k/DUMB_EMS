@@ -1,7 +1,7 @@
 import { safeError } from "../../lib/public-errors";
 import { tr } from "../../i18n/language";
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sections, type Field, type Section } from "./pds-fields";
 import { apiRequest } from "../../lib/api";
@@ -9,6 +9,7 @@ import { apiRequest } from "../../lib/api";
 type Spouse = {
   id: string;
   spouseName: string;
+  version?: number;
   spouseOccupation: string | null;
   spouseDateOfBirth: string | null;
   spouseNationalId: string | null;
@@ -64,7 +65,13 @@ function RecordEditor({
       }
       return apiRequest(
         `/admin/employees/${employeeId}/records/${section.slug}${record ? `/${record.id}` : ""}`,
-        { method: record ? "PATCH" : "POST", body: JSON.stringify(payload) },
+        {
+          method: record ? "PATCH" : "POST",
+          body: JSON.stringify(payload),
+          headers: record?.version
+            ? { "If-Match": String(record.version) }
+            : undefined,
+        },
       );
     },
     onSuccess: async () => {
@@ -200,6 +207,9 @@ function SpousePanel({
     mutationFn: () =>
       apiRequest(`/admin/employees/${employeeId}/spouse`, {
         method: "PUT",
+        headers: spouse?.version
+          ? { "If-Match": String(spouse.version) }
+          : undefined,
         body: JSON.stringify({
           ...values,
           spouseOccupation: values.spouseOccupation || null,
@@ -216,7 +226,12 @@ function SpousePanel({
   });
   const remove = useMutation({
     mutationFn: () =>
-      apiRequest(`/admin/employees/${employeeId}/spouse`, { method: "DELETE" }),
+      apiRequest(`/admin/employees/${employeeId}/spouse`, {
+        method: "DELETE",
+        headers: spouse?.version
+          ? { "If-Match": String(spouse.version) }
+          : undefined,
+      }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["employee", employeeId],
@@ -362,7 +377,8 @@ function SpousePanel({
           type="button"
           disabled={remove.isPending}
           onClick={() => {
-            if (window.confirm("Delete this spouse record?")) remove.mutate();
+            if (window.confirm(tr("Delete this spouse record?")))
+              remove.mutate();
           }}
         >
           {tr("Delete spouse record")}
@@ -385,6 +401,7 @@ export default function EmployeePdsPanel({
   spouse: Spouse | null;
   departments: Department[];
 }) {
+  const tabId = useId();
   const [activeSlug, setActiveSlug] = useState(sections[0].slug);
   const [editingRecord, setEditingRecord] = useState<PdsRecord | null>(null);
   const [adding, setAdding] = useState(false);
@@ -395,11 +412,25 @@ export default function EmployeePdsPanel({
     [activeSlug],
   );
   const items = records[active.responseKey] ?? [];
+  function selectSection(slug: string) {
+    setActiveSlug(slug);
+    setAdding(false);
+    setEditingRecord(null);
+  }
   const remove = useMutation({
     mutationFn: (recordId: string) =>
       apiRequest(
         `/admin/employees/${employeeId}/records/${active.slug}/${recordId}`,
-        { method: "DELETE" },
+        {
+          method: "DELETE",
+          headers: items.find((item) => item.id === recordId)?.version
+            ? {
+                "If-Match": String(
+                  items.find((item) => item.id === recordId)!.version,
+                ),
+              }
+            : undefined,
+        },
       ),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["employee", employeeId] }),
@@ -430,107 +461,140 @@ export default function EmployeePdsPanel({
           className="pds-tabs"
           role="tablist"
           aria-label={tr("Record sections")}
+          onKeyDown={(event) => {
+            const tabs = Array.from(
+              event.currentTarget.querySelectorAll("button"),
+            );
+            const index = tabs.indexOf(event.target as HTMLButtonElement);
+            if (index < 0) return;
+            let next: number;
+            switch (event.key) {
+              case "ArrowLeft":
+                next = (index - 1 + tabs.length) % tabs.length;
+                break;
+              case "ArrowRight":
+                next = (index + 1) % tabs.length;
+                break;
+              case "Home":
+                next = 0;
+                break;
+              case "End":
+                next = tabs.length - 1;
+                break;
+              default:
+                return;
+            }
+            event.preventDefault();
+            const tab = tabs[next];
+            tab?.click();
+            tab?.focus();
+          }}
         >
           {sections.map((section) => (
             <button
               type="button"
               role="tab"
+              id={tabId + "-" + section.slug}
+              aria-controls={tabId}
               aria-selected={active.slug === section.slug}
+              tabIndex={active.slug === section.slug ? 0 : -1}
               className={
                 active.slug === section.slug
                   ? "pds-tab pds-tab-active"
                   : "pds-tab"
               }
               key={section.slug}
-              onClick={() => {
-                setActiveSlug(section.slug);
-                setAdding(false);
-                setEditingRecord(null);
-              }}
+              onClick={() => selectSection(section.slug)}
             >
               {tr(section.title)}
             </button>
           ))}
         </div>
-        <div className="pds-section-heading">
-          <div>
-            <h4>{active.title}</h4>
-            <p>{active.description}</p>
+        <div
+          id={tabId}
+          role="tabpanel"
+          aria-labelledby={tabId + "-" + active.slug}
+        >
+          <div className="pds-section-heading">
+            <div>
+              <h4>{tr(active.title)}</h4>
+              <p>{tr(active.description)}</p>
+            </div>
+            {!adding && !editingRecord && (
+              <button
+                className="primary-link-button"
+                type="button"
+                onClick={() => setAdding(true)}
+              >
+                {tr("Add record")}
+              </button>
+            )}
           </div>
-          {!adding && !editingRecord && (
-            <button
-              className="primary-link-button"
-              type="button"
-              onClick={() => setAdding(true)}
-            >
-              {tr("Add record")}
-            </button>
+          {(adding || editingRecord) && (
+            <RecordEditor
+              key={`${active.slug}-${editingRecord?.id ?? "new"}`}
+              employeeId={employeeId}
+              section={active}
+              departments={departments}
+              record={editingRecord}
+              onClose={() => {
+                setAdding(false);
+                setEditingRecord(null);
+              }}
+            />
+          )}
+          {!adding &&
+            !editingRecord &&
+            (items.length ? (
+              <div className="pds-record-list">
+                {items.map((record) => (
+                  <article className="pds-record-card" key={record.id}>
+                    <div className="pds-record-values">
+                      {active.fields.map((field) => (
+                        <div key={field.key}>
+                          <span>{tr(field.label)}</span>
+                          <strong>
+                            {record[field.key] === null ||
+                            record[field.key] === undefined ||
+                            record[field.key] === ""
+                              ? "—"
+                              : String(record[field.key])}
+                          </strong>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pds-record-actions">
+                      <button
+                        type="button"
+                        onClick={() => setEditingRecord(record)}
+                      >
+                        {tr("Edit")}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={remove.isPending}
+                        onClick={() => {
+                          if (window.confirm(tr("Delete this service record?")))
+                            remove.mutate(record.id);
+                        }}
+                      >
+                        {tr("Delete")}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="pds-empty">
+                {tr("No records have been added to this section.")}
+              </p>
+            ))}
+          {remove.isError && (
+            <p className="form-error" role="alert">
+              {tr(safeError(remove.error))}
+            </p>
           )}
         </div>
-        {(adding || editingRecord) && (
-          <RecordEditor
-            key={`${active.slug}-${editingRecord?.id ?? "new"}`}
-            employeeId={employeeId}
-            section={active}
-            departments={departments}
-            record={editingRecord}
-            onClose={() => {
-              setAdding(false);
-              setEditingRecord(null);
-            }}
-          />
-        )}
-        {!adding &&
-          !editingRecord &&
-          (items.length ? (
-            <div className="pds-record-list">
-              {items.map((record) => (
-                <article className="pds-record-card" key={record.id}>
-                  <div className="pds-record-values">
-                    {active.fields.map((field) => (
-                      <div key={field.key}>
-                        <span>{tr(field.label)}</span>
-                        <strong>
-                          {record[field.key] === null ||
-                          record[field.key] === undefined ||
-                          record[field.key] === ""
-                            ? "—"
-                            : String(record[field.key])}
-                        </strong>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="pds-record-actions">
-                    <button
-                      type="button"
-                      onClick={() => setEditingRecord(record)}
-                    >
-                      {tr("Edit")}
-                    </button>
-                    <button
-                      type="button"
-                      disabled={remove.isPending}
-                      onClick={() => {
-                        if (window.confirm("Delete this service record?"))
-                          remove.mutate(record.id);
-                      }}
-                    >
-                      {tr("Delete")}
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="pds-empty">
-              {tr("No records have been added to this section.")}
-            </p>
-          ))}
-        {remove.isError && (
-          <p className="form-error" role="alert">
-            {tr(safeError(remove.error))}
-          </p>
-        )}
       </section>
     </div>
   );

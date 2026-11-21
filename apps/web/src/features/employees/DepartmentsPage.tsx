@@ -1,16 +1,16 @@
 import { safeError } from "../../lib/public-errors";
 import { tr } from "../../i18n/language";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiRequest } from "../../lib/api";
-import "./DepartmentsPage.css";
 
 type Department = {
   id: string;
   nameEn: string;
   nameBn: string | null;
   isActive: boolean;
+  version?: number;
   employeeCount: number;
 };
 type Employee = {
@@ -26,6 +26,89 @@ type EmployeeResponse = {
   pagination: { page: number; total: number; totalPages: number };
 };
 
+function DepartmentForm({ department }: { department?: Department }) {
+  const cache = useQueryClient();
+  const [nameEn, setNameEn] = useState(department?.nameEn ?? "");
+  const [nameBn, setNameBn] = useState(department?.nameBn ?? "");
+  const [isActive, setActive] = useState(department?.isActive ?? true);
+  const mutation = useMutation({
+    mutationFn: () =>
+      apiRequest(
+        department
+          ? `/admin/departments/${department.id}`
+          : "/admin/departments",
+        {
+          method: department ? "PATCH" : "POST",
+          headers: department?.version
+            ? { "If-Match": String(department.version) }
+            : undefined,
+          body: JSON.stringify({
+            nameEn,
+            nameBn: nameBn || null,
+            ...(department ? { isActive } : {}),
+          }),
+        },
+      ),
+    onSuccess: async () => {
+      if (!department) {
+        setNameEn("");
+        setNameBn("");
+      }
+      await cache.invalidateQueries();
+    },
+  });
+  return (
+    <details className="form-section">
+      <summary>{tr(department ? "Edit department" : "Add department")}</summary>
+      <form
+        className="employee-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          mutation.mutate();
+        }}
+      >
+        <div className="form-grid">
+          <label>
+            {tr("English name")}
+            <input
+              required
+              maxLength={150}
+              value={nameEn}
+              onChange={(e) => setNameEn(e.target.value)}
+            />
+          </label>
+          <label>
+            {tr("Bangla name")}
+            <input
+              maxLength={150}
+              value={nameBn}
+              onChange={(e) => setNameBn(e.target.value)}
+            />
+          </label>
+          {department && (
+            <label>
+              {tr("Department status")}
+              <select
+                value={String(isActive)}
+                onChange={(e) => setActive(e.target.value === "true")}
+              >
+                <option value="true">{tr("Active")}</option>
+                <option value="false">{tr("Inactive")}</option>
+              </select>
+            </label>
+          )}
+        </div>
+        <button className="auth-submit" disabled={mutation.isPending}>
+          {tr(department ? "Save department" : "Add department")}
+        </button>
+        {mutation.isError && (
+          <p role="alert">{tr(safeError(mutation.error))}</p>
+        )}
+        {mutation.isSuccess && <p role="status">{tr("Saved successfully.")}</p>}
+      </form>
+    </details>
+  );
+}
 export default function DepartmentsPage() {
   const [params, setParams] = useSearchParams();
   const selectedId = params.get("department");
@@ -66,9 +149,6 @@ export default function DepartmentsPage() {
       <div className="page-heading page-heading-row">
         <div>
           <h1>{tr("Departments")}</h1>
-          <p className="page-description">
-            {tr("See each department and its employees.")}
-          </p>
         </div>
         {selected && (
           <button
@@ -80,9 +160,14 @@ export default function DepartmentsPage() {
           </button>
         )}
       </div>
+      {import.meta.env.MODE === "worker" && (!selectedId || selected) && (
+        <DepartmentForm key={selected?.id ?? "new"} department={selected} />
+      )}
       {!selectedId ? (
         departments.isPending ? (
-          <p>{tr("Loading departments…")}</p>
+          <p className="table-message" role="status">
+            {tr("Loading departments…")}
+          </p>
         ) : departments.isError ? (
           <p className="error-text" role="alert">
             {tr(safeError(departments.error))}
@@ -146,7 +231,9 @@ export default function DepartmentsPage() {
           </div>
           <div className="table-card">
             {employees.isPending ? (
-              <p className="table-message">{tr("Loading employees…")}</p>
+              <p className="table-message" role="status">
+                {tr("Loading employees…")}
+              </p>
             ) : employees.isError ? (
               <p className="table-message error-text" role="alert">
                 {tr(safeError(employees.error))}
@@ -156,7 +243,12 @@ export default function DepartmentsPage() {
                 {tr("No employees found in this department.")}
               </p>
             ) : (
-              <div className="table-scroll">
+              <div
+                className="table-scroll"
+                role="region"
+                aria-label={tr("Department employees")}
+                tabIndex={0}
+              >
                 <table className="data-table">
                   <thead>
                     <tr>

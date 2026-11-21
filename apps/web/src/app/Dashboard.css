@@ -86,7 +86,7 @@
 }
 @media (hover: hover) {
   .dash-stat:hover {
-    border-color: var(--g-600);
+    border-color: var(--control-border);
   }
   .dash-stat:hover .dash-stat__go {
     transform: none;
@@ -134,7 +134,7 @@
   transition:
     opacity var(--dur) var(--ease-out),
     transform var(--dur) var(--ease-out);
-  color: var(--tone-fg, var(--g-700));
+  color: var(--ink);
 }
 .dash-stat__go .ems-icon {
   width: 18px;
@@ -146,8 +146,13 @@
     opacity: 0.55;
   }
 }
+.dash-stat--green .dash-stat__icon {
+  color: var(--success);
+}
 .dash-stat--amber .dash-stat__icon {
-  color: #87540f;
+  border-radius: var(--s-1);
+  background: var(--pending-accent);
+  color: var(--ink);
 }
 
 /* ---------- panels ---------- */
@@ -191,7 +196,7 @@
 }
 .dash-ring__value {
   margin: 0;
-  color: var(--g-700);
+  color: var(--success);
   font-weight: 750;
   font-size: 40px;
   line-height: 1;
@@ -221,13 +226,13 @@
   min-width: 0;
 }
 .dash-bar__seg--available {
-  background: var(--g-600);
+  background: var(--success-marker);
 }
 .dash-bar__seg--leave {
-  background: #83938a;
+  background: var(--chart-leave);
 }
 .dash-bar__seg--inactive {
-  background: #c9d3cc;
+  background: var(--chart-inactive);
 }
 .dash-legend {
   display: grid;
@@ -301,7 +306,11 @@
 .dash-skel {
   animation: dash-skel 1.3s ease-in-out infinite alternate;
   border-radius: var(--r-md);
-  background: linear-gradient(90deg, #e6ede8, #eef3ef);
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-shade),
+    var(--skeleton-highlight)
+  );
 }
 .dash-skel--card {
   height: 132px;
@@ -326,11 +335,11 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--s-3);
-  border: 1px solid #f3c2c8;
+  border: 1px solid var(--error-border);
   border-radius: var(--r-md);
-  background: var(--red-tint);
+  background: var(--error-bg);
   padding: var(--s-4) var(--s-5);
-  color: #8f1d2b;
+  color: var(--error);
 }
 .dash-error p {
   margin: 0;
@@ -368,9 +377,9 @@
 .me-card__photo .profile-photo {
   display: grid;
   place-items: center;
-  border: 4px solid #fff;
+  border: 4px solid var(--surface);
   border-radius: 50%;
-  background: var(--g-50);
+  background: var(--surface-muted);
   width: 88px;
   height: 88px;
   overflow: hidden;
@@ -414,15 +423,15 @@
   gap: 6px;
   margin-top: var(--s-2);
   border-radius: var(--r-pill);
-  background: var(--g-100);
+  background: var(--success-bg);
   padding: 3px 11px;
-  color: var(--g-800);
+  color: var(--success);
   font-weight: 700;
   font-size: 12px;
 }
 .me-status::before {
   border-radius: 50%;
-  background: var(--g-600);
+  background: var(--success-marker);
   width: 7px;
   height: 7px;
   content: "";
@@ -443,9 +452,9 @@
   align-items: center;
   gap: 6px;
   border-radius: var(--r-pill);
-  background: var(--g-700);
+  background: var(--lavender);
   padding: 3px 11px;
-  color: #fff;
+  color: var(--ink);
   font-weight: 700;
   font-size: 12px;
 }
@@ -481,13 +490,13 @@
   transition: background var(--dur) var(--ease-out);
   border-top: 1px solid var(--border);
   min-height: 48px;
-  color: var(--g-700);
+  color: var(--ink);
   font-weight: 700;
   font-size: 13px;
   text-decoration: none;
 }
 .me-card__link:hover {
-  background: var(--g-50);
+  background: var(--surface-muted);
 }
 .me-side {
   display: grid;

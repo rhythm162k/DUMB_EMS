@@ -3,9 +3,9 @@ import { displayLabels } from "./labels";
 import { bn } from "./bn";
 export type Language = "bn" | "en";
 const listeners = new Set<() => void>();
-let language: Language = "bn";
+let language: Language = "en";
 try {
-  if (localStorage.getItem("ems-language") === "en") language = "en";
+  if (localStorage.getItem("ems-language") === "bn") language = "bn";
 } catch {
   /* Private browsing may disable storage. */
 }

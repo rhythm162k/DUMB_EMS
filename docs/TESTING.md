@@ -38,11 +38,22 @@ Tests live in `apps/api/test/` and `tests/`. Existing suites cover auth/session 
 
 For route changes, use fictional fixtures from `apps/api/test/helpers/`, call the real Express app and assert the response plus important database effects. Include wrong-role/other-employee cases for access changes. Spreadsheet unit tests and mocked import validation do not replace PostgreSQL integration coverage.
 
-CI runs the full tests, lint, typecheck and build on pull requests and pushes to `main`. A successful push to `main` also triggers the deployment job after verification; see [Operations](OPERATIONS.md).
+CI verifies pull requests and pushes to `main`. It runs PostgreSQL and Workers checks and a Wrangler dry run.
 
-## Manual acceptance
+## Cloudflare workerd checks
 
-No browser end-to-end suite is configured. Before releasing a workflow change, verify:
+```sh
+npm run test:worker
+npm run build:worker
+```
+
+The first command builds the Worker-specific SPA and uses Wrangler's test harness to start actual workerd with a simulated, freshly migrated D1 database. The suite checks routing, headers, body limits, workspace isolation, session/CSRF rotation, root/department/employee authorization, duplicate and stale writes, concurrent approvals, import atomicity, photos, rate limits, reset and cleanup. The dry run builds the deployment bundle and verifies Wrangler configuration locally. The hosted acceptance checklist is in [Operations](OPERATIONS.md#staging-acceptance).
+
+Phase 5 also used local Chrome to verify passwordless entry, scoped dashboard and directory, employee creation, resized photo upload, change and leave submission and approval, real CSV/XLSX previews/imports/downloads, switching between English and Bangla, and workspace reset. The [performance report](PERFORMANCE.md) describes separate local workload measurements.
+
+## Manual acceptance for the Node/PostgreSQL reference
+
+Before releasing a workflow change, verify:
 
 - Admin and employee sign-in, forced password change, logout and reset behavior.
 - Direct API denial for another employee's ID and admin-only actions.

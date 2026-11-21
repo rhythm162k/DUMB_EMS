@@ -33,20 +33,65 @@ const publicMessages = [
   "Invalid data entry. Please check your spreadsheet and try again.",
   "Records changed during import. Preview the file again.",
   "Preview expired or already committed. Upload the file again.",
+  "This employee has an overlapping leave record.",
+  "The demo accepts up to 12 rows per import.",
   "Formulas are not accepted. Paste values before importing.",
   "Store employee IDs as text so leading zeroes are kept.",
   "Add at least one data row to the template.",
   "A spreadsheet can have at most 1000 rows.",
 ] as const;
-const allowed = new Set<string>(publicMessages);
+export const genericError = publicMessages[0];
+const messagesByCode = new Map([
+  ["EMPLOYEE_ID_TAKEN", "An employee with this ID already exists."],
+  [
+    "DEPARTMENT_NAME_TAKEN",
+    "A department with this English name already exists.",
+  ],
+  [
+    "DEPARTMENT_INVALID",
+    "The selected department was not found or is inactive.",
+  ],
+  [
+    "SPOUSE_REQUIRES_MARRIED",
+    "Set the marital status to Married before adding spouse information.",
+  ],
+  [
+    "SPOUSE_RECORD_EXISTS",
+    "Remove the spouse record before changing the marital status from Married.",
+  ],
+  ["IMPORT_CONFLICT", "Records changed during import. Preview the file again."],
+  [
+    "PREVIEW_UNAVAILABLE",
+    "Preview expired or already committed. Upload the file again.",
+  ],
+  [
+    "PREVIEW_EXPIRED",
+    "Preview expired or already committed. Upload the file again.",
+  ],
+  ["INVALID_IMAGE", "Choose a valid JPG, PNG or WebP photo."],
+  ["EXPORT_LIMIT", "Select fewer employees and try again."],
+  ["DUPLICATE_REQUEST", "A request is already waiting for review."],
+]);
+const allowed = new Set<string>([
+  ...publicMessages,
+  ...messagesByCode.values(),
+  "Could not open this image.",
+  "Could not resize this image. Choose a smaller photo.",
+]);
 export function safeError(error: unknown): string {
   const message = error instanceof Error ? error.message : error;
   return typeof message === "string" && allowed.has(message)
     ? message
-    : publicMessages[0];
+    : genericError;
 }
-export function responseError(status: number, message?: unknown): string {
-  if (status >= 500) return publicMessages[0];
+export function responseError(
+  status: number,
+  message?: unknown,
+  code?: string,
+): string {
+  if (status >= 500) return genericError;
+  const specific = code && messagesByCode.get(code);
+  if (specific) return specific;
   if (typeof message === "string" && allowed.has(message)) return message;
   if (status === 401) return publicMessages[2];
   if (status === 403) return publicMessages[3];

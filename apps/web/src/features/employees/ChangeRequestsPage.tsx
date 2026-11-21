@@ -53,7 +53,13 @@ const display = (v: unknown): string =>
           .map(([k, x]) => `${tr(labels[k] ?? "Detail")}: ${display(x)}`)
           .join(" · ")
       : String(v);
-export default function ChangeRequestsPage({ admin }: { admin: boolean }) {
+export default function ChangeRequestsPage({
+  admin,
+  readOnly = false,
+}: {
+  admin: boolean;
+  readOnly?: boolean;
+}) {
   const client = useQueryClient();
   const [page, setPage] = useState(1);
   const [mode, setMode] = useState<"PROFILE" | "SPOUSE" | "PDS">("PROFILE");
@@ -75,7 +81,7 @@ export default function ChangeRequestsPage({ admin }: { admin: boolean }) {
   });
   const profile = useQuery({
     queryKey: ["my-profile"],
-    enabled: !admin,
+    enabled: !admin && !readOnly,
     queryFn: () =>
       apiRequest<{
         profile: Record<string, unknown>;
@@ -85,7 +91,7 @@ export default function ChangeRequestsPage({ admin }: { admin: boolean }) {
   });
   const departments = useQuery({
     queryKey: ["departments"],
-    enabled: !admin,
+    enabled: !admin && !readOnly,
     queryFn: () =>
       apiRequest<{ departments: { id: string; nameEn: string }[] }>(
         "/departments",
@@ -175,7 +181,7 @@ export default function ChangeRequestsPage({ admin }: { admin: boolean }) {
       mode === "PDS" &&
       operation === "DELETE" &&
       !window.confirm(
-        "Ask to remove this record? It stays as it is until approved.",
+        tr("Request removal of this record? An administrator must approve it."),
       )
     )
       return;
@@ -190,13 +196,13 @@ export default function ChangeRequestsPage({ admin }: { admin: boolean }) {
     <section className="workspace-page change-requests-page">
       <div className="page-heading">
         <h1>{tr(admin ? "Change request review" : "My change requests")}</h1>
-        <p className="page-description">
-          {tr(
-            "Your request changes nothing until an administrator approves it.",
-          )}
-        </p>
+        {!admin && (
+          <p className="page-description">
+            {tr("An administrator must approve changes to your profile.")}
+          </p>
+        )}
       </div>
-      {!admin && (
+      {!admin && !readOnly && (
         <form className="form-section employee-form" onSubmit={submit}>
           <h2>{tr("Submit a request")}</h2>
           {profile.isError && (
@@ -432,11 +438,13 @@ export default function ChangeRequestsPage({ admin }: { admin: boolean }) {
           )}
         </header>
         {requests.isPending ? (
-          <p>{tr("Loading requests…")}</p>
+          <p className="table-message" role="status">
+            {tr("Loading requests…")}
+          </p>
         ) : requests.isError ? (
           <p role="alert">{tr(safeError(requests.error))}</p>
         ) : requests.data.items.length === 0 ? (
-          <p>{tr("No requests found.")}</p>
+          <p className="table-message">{tr("No requests found.")}</p>
         ) : (
           requests.data.items.map((item) => {
             const section = sections.find(
@@ -470,13 +478,7 @@ export default function ChangeRequestsPage({ admin }: { admin: boolean }) {
                       {new Date(item.submittedAt).toLocaleDateString(locale)}
                     </p>
                   </div>
-                  <span
-                    className={
-                      pending
-                        ? "request-status request-status--pending"
-                        : "request-status"
-                    }
-                  >
+                  <span className="request-status" data-status={item.status}>
                     {tr(item.status)}
                   </span>
                 </header>
@@ -513,7 +515,7 @@ export default function ChangeRequestsPage({ admin }: { admin: boolean }) {
                     {item.rejectionReason}
                   </p>
                 )}
-                {pending && (
+                {pending && !readOnly && (
                   <div className="form-actions">
                     {admin ? (
                       <>

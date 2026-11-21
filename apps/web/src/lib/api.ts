@@ -1,3 +1,4 @@
+import type { SpreadsheetJob } from "./spreadsheet.worker";
 import { responseError } from "./public-errors";
 export type ApiErrorBody = { error?: { code?: string; message?: string } };
 
@@ -34,7 +35,13 @@ export async function apiRequest<T>(
 
   const payload = (await response.json().catch(() => ({}))) as T & ApiErrorBody;
   if (!response.ok) {
-    throw new Error(responseError(response.status, payload.error?.message));
+    throw new Error(
+      responseError(
+        response.status,
+        payload.error?.message,
+        payload.error?.code,
+      ),
+    );
   }
   return payload;
 }
@@ -68,7 +75,13 @@ export async function apiImageRequest(
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({}))) as ApiErrorBody;
 
-    throw new Error(responseError(response.status, payload.error?.message));
+    throw new Error(
+      responseError(
+        response.status,
+        payload.error?.message,
+        payload.error?.code,
+      ),
+    );
   }
 }
 
@@ -79,7 +92,13 @@ export async function downloadProfileCsv(): Promise<void> {
   });
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({}))) as ApiErrorBody;
-    throw new Error(responseError(response.status, payload.error?.message));
+    throw new Error(
+      responseError(
+        response.status,
+        payload.error?.message,
+        payload.error?.code,
+      ),
+    );
   }
   if (!response.headers.get("content-type")?.includes("text/csv")) {
     throw new Error(
@@ -100,6 +119,17 @@ export async function downloadProfileCsv(): Promise<void> {
 }
 
 export async function apiFileRequest<T>(path: string, file: File): Promise<T> {
+  if (import.meta.env.MODE === "worker") {
+    const { runSpreadsheet } = await import("./spreadsheet");
+    const rows = await runSpreadsheet<Record<string, string>[]>({
+      kind: "read",
+      file,
+    });
+    return apiRequest<T>(path, {
+      method: "POST",
+      body: JSON.stringify({ rows }),
+    });
+  }
   const headers = new Headers({
     // The server decides the format from the file itself; this is only a label.
     "Content-Type": file.name.toLowerCase().endsWith(".xlsx")
@@ -116,7 +146,13 @@ export async function apiFileRequest<T>(path: string, file: File): Promise<T> {
   });
   const payload = (await response.json().catch(() => ({}))) as T & ApiErrorBody;
   if (!response.ok)
-    throw new Error(responseError(response.status, payload.error?.message));
+    throw new Error(
+      responseError(
+        response.status,
+        payload.error?.message,
+        payload.error?.code,
+      ),
+    );
   return payload;
 }
 export async function downloadData(
@@ -124,6 +160,27 @@ export async function downloadData(
   filename: string,
   body?: Record<string, string>,
 ): Promise<void> {
+  if (import.meta.env.MODE === "worker") {
+    const { runSpreadsheet } = await import("./spreadsheet");
+    const endpoint = path.startsWith("/me/data/pds?") ? "/me/data/pds" : path;
+    const options = path.startsWith("/me/data/pds?")
+      ? {
+          format:
+            new URLSearchParams(path.split("?")[1]).get("format") ?? "xlsx",
+        }
+      : body;
+    const workbook = await apiRequest<
+      Extract<SpreadsheetJob, { kind: "write" }>["workbook"]
+    >(
+      endpoint,
+      options ? { method: "POST", body: JSON.stringify(options) } : {},
+    );
+    saveDownload(
+      await runSpreadsheet<Blob>({ kind: "write", workbook }),
+      filename,
+    );
+    return;
+  }
   const headers = new Headers();
   if (body) {
     headers.set("Content-Type", "application/json");
@@ -138,14 +195,24 @@ export async function downloadData(
   });
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({}))) as ApiErrorBody;
-    throw new Error(responseError(response.status, payload.error?.message));
+    throw new Error(
+      responseError(
+        response.status,
+        payload.error?.message,
+        payload.error?.code,
+      ),
+    );
   }
   const type = response.headers.get("content-type") ?? "";
   if (!type.includes("text/csv") && !type.includes("spreadsheetml.sheet"))
     throw new Error(
       "Something went wrong. Please try again. If the problem continues, contact your administrator.",
     );
-  const url = URL.createObjectURL(await response.blob());
+  saveDownload(await response.blob(), filename);
+}
+
+function saveDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;

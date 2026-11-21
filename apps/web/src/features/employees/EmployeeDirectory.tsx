@@ -1,5 +1,5 @@
 import { safeError } from "../../lib/public-errors";
-import { currentLanguage, tr } from "../../i18n/language";
+import { currentLanguage, num, tr } from "../../i18n/language";
 import { Icons } from "../../app/Icons";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -29,7 +29,11 @@ type EmployeeResponse = {
 };
 type DepartmentResponse = { departments: Department[] };
 
-export default function EmployeeDirectory() {
+export default function EmployeeDirectory({
+  readOnly = false,
+}: {
+  readOnly?: boolean;
+}) {
   const [search, setSearch] = useState("");
   const [departmentId, setDepartmentId] = useState("");
   const [employmentStatus, setEmploymentStatus] = useState("");
@@ -67,18 +71,17 @@ export default function EmployeeDirectory() {
       <div className="page-heading page-heading-row">
         <div>
           <h1>{tr("Employees")}</h1>
-          <p className="page-description">
-            {tr("Find and manage employee records.")}
-          </p>
         </div>
         <div className="directory-heading-actions">
           <span className="result-count">
-            {employees.data?.pagination.total ?? "—"}
+            {employees.data ? num(employees.data.pagination.total) : "—"}
             {tr(" employees")}
           </span>
-          <Link className="primary-link-button" to="/employees/new">
-            {tr("Add employee")}
-          </Link>
+          {!readOnly && (
+            <Link className="primary-link-button" to="/employees/new">
+              {tr("Add employee")}
+            </Link>
+          )}
         </div>
       </div>
 
@@ -127,7 +130,9 @@ export default function EmployeeDirectory() {
 
       <div className="table-card">
         {employees.isPending ? (
-          <p className="table-message">{tr("Loading employee records…")}</p>
+          <p className="table-message" role="status">
+            {tr("Loading employee records…")}
+          </p>
         ) : employees.isError ? (
           <p className="table-message error-text" role="alert">
             {tr(safeError(employees.error))}
@@ -137,7 +142,12 @@ export default function EmployeeDirectory() {
             {tr("No employees match these filters.")}
           </p>
         ) : (
-          <div className="table-scroll">
+          <div
+            className="table-scroll"
+            role="region"
+            aria-label={tr("Employee records")}
+            tabIndex={0}
+          >
             <table className="data-table data-table--cards">
               <thead>
                 <tr>
@@ -216,9 +226,9 @@ export default function EmployeeDirectory() {
         <div className="table-pagination">
           <span>
             {tr("Page ")}
-            {employees.data?.pagination.page ?? page}
+            {num(employees.data?.pagination.page ?? page)}
             {tr(" of ")}
-            {employees.data?.pagination.totalPages ?? 1}
+            {num(employees.data?.pagination.totalPages ?? 1)}
           </span>
           <div>
             <button

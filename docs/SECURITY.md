@@ -1,12 +1,22 @@
 # Security
 
-## Access model
+## Cloudflare demo
+
+- The browser selects one of five fictional personas. D1 enforces root, full-administrator, department-administrator and employee permissions. An employee's self-service identity comes from its session. Administrator assignment requires an active root session. Persona switching is an intentional demo capability inside the same isolated workspace.
+- The host-only session cookie is Secure, HttpOnly and SameSite=Lax. The Worker stores a SHA-256 digest of the opaque session token and a separate CSRF token in D1. Session and CSRF credentials rotate on persona switch and reset. Credential rotation, expiry and workspace ownership are checked on protected writes.
+- Workspace IDs scope primary and foreign keys and query predicates. Protected write batches recheck actor session, target scope and any expected record version before auditing a mutation. Imports use expiring, actor-bound previews and revalidation before a single commit.
+- IP rate-limit bindings are approximate per Cloudflare location. The database separately enforces the UTC issuance budget, retained workspace limit, expiry, image limits and workspace activity cap. Scheduled cleanup removes expired data. A workspace remains inaccessible as soon as it expires.
+- The deployed runtime exposes the SPA and explicit API routes, including simple health and readiness probes. Debug tooling and D1 exploration are local. The generated staging configuration starts with both routes off. Its hosted test uses Cloudflare Access and fictional data. [Staging runbook](OPERATIONS.md#controlled-cloudflare-free-staging)
+
+## Node/PostgreSQL reference security
+
+### Access model
 
 The API is the authorization boundary. Administrators manage employee records and operational workflows. Employees can read their own profile and leave history, manage their own photo, propose changes and export their own permitted data. Never rely on hidden navigation or frontend role checks to protect a route.
 
 `auth/middleware.ts` loads current user/account/employment state on protected requests. First-login accounts must complete the password change before normal protected actions. Employee identity for self-service must come from the authenticated session rather than caller-supplied IDs.
 
-## Implemented controls
+### Implemented controls
 
 - bcrypt password hashing with configurable cost (10–15); new passwords require at least 12 characters and at most 72 UTF-8 bytes.
 - Random temporary passwords, forced first-login change, generic login failures and dummy hashing for unknown users.
@@ -19,7 +29,7 @@ The API is the authorization boundary. Administrators manage employee records an
 
 These controls do not constitute a penetration test or certification.
 
-## Open hardening items
+### Open hardening items
 
 The source review identified the following items. They remain open; writing this guide does not fix them or verify the live host configuration.
 
@@ -32,11 +42,11 @@ The source review identified the following items. They remain open; writing this
 
 Image verification checks signatures rather than fully decoding/re-encoding images. Evaluate dimension limits, metadata removal and stronger validation if upload requirements expand. MFA is not implemented. Dependency vulnerability status and host/TLS security require separate review.
 
-## Deployment requirements
+### Local reference configuration
 
 Use a fresh high-entropy session secret and private database credentials; never commit `.env`, credential exports or personal data. Set `WEB_ORIGIN` to the exact external HTTPS origin and `SESSION_COOKIE_SECURE=true`. Confirm cookie issuance through the actual proxy chain: Express trusts one proxy hop in production, while Nginx sets forwarded protocol from its incoming scheme. An additional host TLS proxy requires end-to-end verification of this behavior.
 
-Keep API/database ports private, scope AWS and SSH permissions, and assess a least-privilege runtime database role. Protect database and image backups with access controls and encryption. Define retention and restore ownership outside the application.
+Keep API and database ports private and use a least-privilege runtime database role. Protect database and image backups with access controls and encryption. Define retention and restore ownership outside the application.
 
 ## Reporting and response
 

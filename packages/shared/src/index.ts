@@ -1,1 +1,1 @@
-export const APP_NAME = "Payra Sea Port EMS";
+export const APP_NAME = "EMS Portfolio Demo";

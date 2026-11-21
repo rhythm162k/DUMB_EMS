@@ -14,8 +14,13 @@
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "npm run dev --workspace=@ems/api",
     "dev:web": "npm run dev --workspace=@ems/web",
+    "db:migrate:worker": "wrangler d1 migrations apply DB --config apps/api/worker/wrangler.jsonc --local",
+    "dev:worker": "npm run db:migrate:worker && npm run build:worker --workspace=@ems/web && CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV=false wrangler dev --config apps/api/worker/wrangler.jsonc --local",
+    "dev:web:worker": "npm run dev:worker --workspace=@ems/web",
     "build": "npm run build --workspace=@ems/shared && npm run build --workspace=@ems/api && npm run build --workspace=@ems/web",
-    "typecheck": "npm run typecheck --workspace=@ems/shared && npm run typecheck --workspace=@ems/api && npm run typecheck --workspace=@ems/web",
+    "build:worker": "npm run build:worker --workspace=@ems/web && wrangler deploy --config apps/api/worker/wrangler.jsonc --dry-run --outdir .wrangler/bundle",
+    "typecheck": "npm run typecheck --workspace=@ems/shared && npm run typecheck --workspace=@ems/api && npm run typecheck --workspace=@ems/web && npm run typecheck:worker",
+    "typecheck:worker": "wrangler types --config apps/api/worker/wrangler.jsonc .wrangler/worker-configuration.d.ts && tsc -p apps/api/worker/tsconfig.json",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -24,6 +29,7 @@
     "auth:seed-admin": "npm run auth:seed-admin --workspace=@ems/api --",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:worker": "npm run build:worker --workspace=@ems/web && node --test apps/api/worker/worker.test.mjs",
     "db:seed-demo": "npm run db:seed-demo --workspace=@ems/api --",
     "test:public": "vitest run --config vitest.public.config.ts"
   },
@@ -37,6 +43,7 @@
     "prettier": "^3.10.1",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.1",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "wrangler": "4.156.0"
   }
 }

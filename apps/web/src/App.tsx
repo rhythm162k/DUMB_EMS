@@ -1,12 +1,21 @@
-import { safeError, responseError } from "./lib/public-errors";
+import { genericError, safeError, responseError } from "./lib/public-errors";
 import { tr, useLanguage } from "./i18n/language";
 import LanguageSwitcher from "./i18n/LanguageSwitcher";
-import { BrandBlock } from "./app/Brand";
-// /* eslint-disable react-hooks/set-state-in-effect */
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { Icons } from "./app/Icons";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import "./App.css";
-import AppWorkspace from "./app/AppWorkspace";
 import { apiRequest, setCsrfToken as updateApiCsrfToken } from "./lib/api";
+
+const AppWorkspace = /* @__PURE__ */ lazy(() => import("./app/AppWorkspace"));
 
 type ServiceState = "checking" | "online" | "offline";
 type AuthUser = {
@@ -36,6 +45,242 @@ const initialStatus: SystemStatus = {
 
 async function readJson<T>(response: Response): Promise<T> {
   return (await response.json()) as T;
+}
+
+function AuthLayout({ children }: { children: ReactNode }) {
+  return (
+    <main className="auth-page ems-auth">
+      <header className="ems-auth__hero">
+        <div className="ems-auth__body">
+          <img
+            src="/images/dumb-ems.svg"
+            alt="brand-logo"
+            height={150}
+            width={150}
+          />
+          <p>{tr("Employee Management System")}</p>
+        </div>
+      </header>
+      <div className="ems-auth__panel">
+        <div className="ems-auth__tools">
+          <LanguageSwitcher />
+        </div>
+        <section className="auth-card">{children}</section>
+      </div>
+    </main>
+  );
+}
+
+const personas = [
+  ["root", "Full Administrator"],
+  ["full-admin", "Administrator"],
+  ["operations-admin", "Department Administrator", "As Operations Admin"],
+  [
+    "people-admin",
+    "Department Administrator",
+    "As People & Administration Admin",
+  ],
+  ["employee", "Employee"],
+] as const;
+
+type Persona = (typeof personas)[number][0];
+type DemoSession = {
+  persona: Persona;
+  csrfToken: string;
+  expiresAt: number;
+  user: AuthUser;
+};
+
+function DemoApp() {
+  useLanguage();
+  const [session, setSession] = useState<DemoSession | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const requestVersion = useRef(0);
+
+  const applySession = useCallback((next: DemoSession | null) => {
+    updateApiCsrfToken(next?.csrfToken ?? "");
+    setSession(next);
+  }, []);
+
+  const load = useCallback(
+    async (signal?: AbortSignal) => {
+      const version = ++requestVersion.current;
+      try {
+        const result = await apiRequest<DemoSession | { user: null }>(
+          "/demo/session",
+          { signal },
+        );
+        if (!signal?.aborted && version === requestVersion.current)
+          applySession(result.user ? result : null);
+      } catch (failure) {
+        if (!signal?.aborted && version === requestVersion.current)
+          setError(safeError(failure));
+      } finally {
+        if (!signal?.aborted && version === requestVersion.current)
+          setLoading(false);
+      }
+    },
+    [applySession],
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => void load(controller.signal), 0);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [load]);
+
+  useEffect(() => {
+    if (!session) return;
+    const timer = window.setTimeout(
+      () => {
+        applySession(null);
+        setError("Your session has ended. Please select a role to continue.");
+      },
+      Math.max(0, session.expiresAt * 1000 - Date.now()),
+    );
+    return () => window.clearTimeout(timer);
+  }, [applySession, session]);
+
+  useEffect(() => {
+    if (!session || busy) return;
+    const resume = () => void load();
+    window.addEventListener("focus", resume);
+    return () => window.removeEventListener("focus", resume);
+  }, [busy, load, session]);
+
+  async function action(path: string, persona?: Persona) {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    ++requestVersion.current;
+    try {
+      const next = await apiRequest<DemoSession>(path, {
+        method: "POST",
+        ...(persona ? { body: JSON.stringify({ persona }) } : {}),
+      });
+      window.history.replaceState(null, "", "/");
+      applySession(path === "/demo/logout" ? null : next);
+    } catch (failure) {
+      const message = safeError(failure);
+      setError(
+        !session && path === "/demo/session" && message === genericError
+          ? "Unable to start your session. Please try again."
+          : message,
+      );
+      if (session) await load();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const choices = (
+    <div className="role-list" aria-busy={loading || busy}>
+      {personas.map(([key, title, department]) => (
+        <button
+          key={key}
+          className="role-choice"
+          type="button"
+          disabled={loading || busy || session?.persona === key}
+          aria-current={session?.persona === key ? "true" : undefined}
+          onClick={() => void action("/demo/session", key)}
+        >
+          <span className="role-choice__label">
+            {tr(title)}
+            {department && (
+              <span className="role-choice__department">{tr(department)}</span>
+            )}
+          </span>
+          {session?.persona === key ? (
+            <span className="role-choice__current">{tr("Current")}</span>
+          ) : (
+            Icons.arrow
+          )}
+        </button>
+      ))}
+    </div>
+  );
+  const roleStatus = (loading || busy) && (
+    <p className="role-progress" role="status">
+      {tr(loading ? "Checking your session…" : "Please wait…")}
+    </p>
+  );
+  const feedback = error && (
+    <p className="auth-error" role="alert">
+      {tr(error)}
+    </p>
+  );
+
+  if (session)
+    return (
+      <Suspense
+        fallback={
+          <p className="auth-loading" role="status">
+            {tr("Loading EMS…")}
+          </p>
+        }
+      >
+        <AppWorkspace
+          key={session.csrfToken}
+          user={session.user}
+          status={initialStatus}
+          isRefreshing={false}
+          refreshStatus={() => undefined}
+          onLogout={() => void action("/demo/logout")}
+          demoSettings={
+            <section className="workspace-page session-page">
+              <div className="page-heading">
+                <h1>{tr("Session settings")}</h1>
+              </div>
+              {feedback}
+              <section className="form-section session-panel">
+                <h2>{tr("Switch role")}</h2>
+                {choices}
+                {roleStatus}
+              </section>
+              <section className="form-section session-panel">
+                <h2>{tr("Reset sample data")}</h2>
+                <p>{tr("Resetting removes changes made in this session.")}</p>
+                <button
+                  className="secondary-link-button"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        tr("Reset sample data and discard your changes?"),
+                      )
+                    )
+                      void action("/demo/reset");
+                  }}
+                >
+                  {tr("Reset data")}
+                </button>
+              </section>
+            </section>
+          }
+        />
+      </Suspense>
+    );
+
+  return (
+    <AuthLayout>
+      <div className="auth-card-head">
+        <h1>{tr("Welcome to EMS")}</h1>
+        <p className="auth-description">{tr("Select a role to continue.")}</p>
+      </div>
+      {choices}
+      {roleStatus}
+      {feedback}
+      <p className="auth-note">
+        {tr("Sample records only. Please use sample information.")}
+      </p>
+    </AuthLayout>
+  );
 }
 
 function AuthPanel({
@@ -107,130 +352,95 @@ function AuthPanel({
   }
 
   return (
-    <main className="auth-page ems-auth">
-      <LanguageSwitcher floating />
-      <section
-        className="ems-auth__hero"
-        aria-label={tr("Payra Port Authority")}
-      >
-        <div className="ems-brand">
-          <BrandBlock />
-        </div>
-
-        <div className="ems-auth__body">
-          <img className="ems-auth__logo" src="/favicon.svg" alt="payra logo" />
-          <h2>{tr("Employee Management System")}</h2>
-          <p>{tr("Payra Port Authority")}</p>
-        </div>
-        <p className="ems-auth__gov">
-          <img
-            src="/images/Government_of_Bangladesh.webp"
-            alt="govt logo"
-            height={15}
-          />
-          {tr("Government of the People's Republic of Bangladesh")}
+    <AuthLayout>
+      <div className="auth-card-head">
+        <h1>
+          {tr(mode === "login" ? "Sign in to EMS" : "Set your new password")}
+        </h1>
+        <p className="auth-description">
+          {tr(
+            mode === "login"
+              ? "Sign in with the employee ID and password you were given."
+              : "Your temporary password works only once. Set a new password to continue.",
+          )}
         </p>
-      </section>
-      <div className="ems-auth__panel">
-        <section className="auth-card">
-          <div className="auth-card-head">
-            <h1>
-              {tr(
-                mode === "login"
-                  ? "Sign in to Payra EMS"
-                  : "Set your new password",
-              )}
-            </h1>
-            <p className="auth-description">
-              {tr(
-                mode === "login"
-                  ? "Sign in with the employee ID and password you were given."
-                  : "Your temporary password works only once. Set a new password to continue.",
-              )}
-            </p>
-          </div>
-
-          <form className="auth-form" onSubmit={submit}>
-            {mode === "login" ? (
-              <>
-                <label htmlFor="employee-id">{tr("Employee ID")}</label>
-                <input
-                  id="employee-id"
-                  autoComplete="username"
-                  value={employeeId}
-                  onChange={(event) => setEmployeeId(event.target.value)}
-                  placeholder={tr("Enter your employee ID")}
-                  required
-                />
-                <label htmlFor="password">{tr("Password")}</label>
-                <input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder={tr("Enter your password")}
-                  required
-                />
-              </>
-            ) : (
-              <>
-                <label htmlFor="new-password">{tr("New password")}</label>
-                <input
-                  id="new-password"
-                  type="password"
-                  autoComplete="new-password"
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  placeholder={tr("At least 12 characters")}
-                  minLength={12}
-                  required
-                />
-                <label htmlFor="confirm-password">
-                  {tr("Confirm new password")}
-                </label>
-                <input
-                  id="confirm-password"
-                  type="password"
-                  autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  placeholder={tr("Enter the new password again")}
-                  minLength={12}
-                  required
-                />
-              </>
-            )}
-            {error && (
-              <p className="auth-error" role="alert">
-                {tr(error)}
-              </p>
-            )}
-            <button
-              className="auth-submit"
-              type="submit"
-              disabled={busy || !csrfToken}
-            >
-              {tr(
-                busy
-                  ? "Please wait…"
-                  : mode === "login"
-                    ? "Sign in"
-                    : "Save new password",
-              )}
-            </button>
-          </form>
-          <p className="auth-footnote">
-            <span aria-hidden="true">©</span> {tr("PAYRA PORT")} ·{" "}
-            {tr("Patuakhali, Bangladesh")}
-          </p>
-        </section>
       </div>
-    </main>
+
+      <form className="auth-form" onSubmit={submit}>
+        {mode === "login" ? (
+          <>
+            <label htmlFor="employee-id">{tr("Employee ID")}</label>
+            <input
+              id="employee-id"
+              autoComplete="username"
+              value={employeeId}
+              onChange={(event) => setEmployeeId(event.target.value)}
+              placeholder={tr("Enter your employee ID")}
+              required
+            />
+            <label htmlFor="password">{tr("Password")}</label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={tr("Enter your password")}
+              required
+            />
+          </>
+        ) : (
+          <>
+            <label htmlFor="new-password">{tr("New password")}</label>
+            <input
+              id="new-password"
+              type="password"
+              autoComplete="new-password"
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              placeholder={tr("At least 12 characters")}
+              minLength={12}
+              required
+            />
+            <label htmlFor="confirm-password">
+              {tr("Confirm new password")}
+            </label>
+            <input
+              id="confirm-password"
+              type="password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              placeholder={tr("Enter the new password again")}
+              minLength={12}
+              required
+            />
+          </>
+        )}
+        {error && (
+          <p className="auth-error" role="alert">
+            {tr(error)}
+          </p>
+        )}
+        <button
+          className="auth-submit"
+          type="submit"
+          disabled={busy || !csrfToken}
+        >
+          {tr(
+            busy
+              ? "Please wait…"
+              : mode === "login"
+                ? "Sign in"
+                : "Save new password",
+          )}
+        </button>
+      </form>
+    </AuthLayout>
   );
 }
 
-function App() {
+function LegacyApp() {
   useLanguage();
   const [status, setStatus] = useState<SystemStatus>(initialStatus);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -414,15 +624,27 @@ function App() {
   }
 
   return (
-    <AppWorkspace
-      key={`${user.id}:${user.role}:${user.adminScope}:${user.administeredDepartmentId}`}
-      user={user}
-      status={status}
-      refreshStatus={() => void refreshStatus()}
-      isRefreshing={isRefreshing}
-      onLogout={() => void handleLogout()}
-    />
+    <Suspense
+      fallback={
+        <main className="auth-page">
+          <p className="auth-loading" role="status">
+            {tr("Loading EMS…")}
+          </p>
+        </main>
+      }
+    >
+      <AppWorkspace
+        key={`${user.id}:${user.role}:${user.adminScope}:${user.administeredDepartmentId}`}
+        user={user}
+        status={status}
+        refreshStatus={() => void refreshStatus()}
+        isRefreshing={isRefreshing}
+        onLogout={() => void handleLogout()}
+      />
+    </Suspense>
   );
 }
 
-export default App;
+export default function App() {
+  return import.meta.env.MODE === "worker" ? <DemoApp /> : <LegacyApp />;
+}

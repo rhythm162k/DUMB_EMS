@@ -1,15 +1,10 @@
 import { setLanguage, useLanguage } from "./language";
 
-/** Compact বাংলা / EN toggle. `floating` pins it top-right (used on sign-in screens). */
-export default function LanguageSwitcher({
-  floating = false,
-}: {
-  floating?: boolean;
-}) {
+export default function LanguageSwitcher() {
   const language = useLanguage();
   return (
     <div
-      className={`language-switcher${floating ? " language-switcher--floating" : ""}`}
+      className="language-switcher"
       role="group"
       aria-label="Language / ভাষা"
     >

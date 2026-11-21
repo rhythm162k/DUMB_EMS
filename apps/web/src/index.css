@@ -1,10 +1,79 @@
 :root {
-  --navy: #087f3e;
-  --muted: #65786a;
-  --border: #dfe7e1;
+  /* Brand palette */
+  --ivory: #f6f5ec;
+  --white: #ffffff;
+  --greige: #cdcbb7;
+  --lime: #bfff4f;
+  --orange: #ff6b35;
+  --charcoal: #282828;
+  --olive: #929487;
+  --lavender: #c6a7f2;
+  --light-border: #e2e3dc;
+
+  /* Surfaces and text */
+  --bg: var(--ivory);
+  --surface: var(--white);
+  --surface-elevated: var(--surface);
+  --surface-accent: var(--greige);
+  --surface-muted: #efeee4;
+  --surface-strong: #e9e8db;
+  --surface-hover: #faf9f2;
+  --surface-translucent: color-mix(in srgb, var(--surface) 93%, transparent);
+  --ink: var(--charcoal);
+  --text-secondary: #43463d;
+  --muted: #595c50;
+  --inverse-text: var(--white);
+
+  /* Controls, navigation and focus */
+  --border: var(--light-border);
+  --border-strong: var(--greige);
+  --control-border: #818375;
+  --primary-bg: var(--lime);
+  --primary-text: var(--ink);
+  --primary-border: #62763b;
+  --primary-hover: #b1ef43;
+  --secondary-bg: var(--surface);
+  --secondary-text: var(--text-secondary);
+  --secondary-hover: var(--surface-muted);
+  --nav-active-bg: var(--lime);
+  --nav-active-text: var(--ink);
+  --nav-indicator: var(--ink);
+  --focus: #6a468e;
+  --focus-halo: color-mix(in srgb, var(--focus) 18%, transparent);
+  --selection-control: var(--ink);
+  --disabled-bg: var(--surface-strong);
+  --disabled-text: var(--muted);
+  --disabled-border: var(--border-strong);
+
+  /* Feedback and charts */
+  --success: #2a6248;
+  --success-bg: #e8f2eb;
+  --success-border: #acceb9;
+  --success-marker: #3a7459;
+  --success-halo: color-mix(in srgb, var(--success-marker) 15%, transparent);
+  --warning: #795019;
+  --warning-bg: #fbf0dc;
+  --warning-marker: #9e6a20;
+  --error: #942334;
+  --error-bg: #fcecef;
+  --error-border: #edbbc4;
+  --info: #533878;
+  --info-bg: #f2ebfa;
+  --info-border: var(--lavender);
+  --pending-accent: var(--orange);
+  --chart-leave: var(--orange);
+  --chart-inactive: var(--olive);
+  --skeleton-shade: var(--surface-strong);
+  --skeleton-highlight: var(--surface-muted);
+
+  /* Elevation */
+  --shadow-color: rgb(40 40 40 / 0.06);
+  --shadow-1: 0 1px 3px var(--shadow-color);
+  --scrim: rgb(40 40 40 / 0.48);
+
   font-family: system-ui, "Segoe UI", sans-serif;
-  color: #52665a;
-  background: #f5f7f5;
+  color: var(--ink);
+  background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -30,7 +99,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid #3b9c91;
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 #root {
@@ -45,24 +114,24 @@ select:focus-visible {
   display: flex;
   padding: 4px;
   gap: 3px;
-  background: #fff;
-  border: 1px solid #cbdcde;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 24px;
-  box-shadow: 0 3px 15px #102d3620;
+  box-shadow: 0 3px 15px var(--shadow-color);
 }
 .language-switcher button {
   border: 0;
   border-radius: 20px;
   padding: 7px 12px;
   background: transparent;
-  color: #385260;
+  color: var(--text-secondary);
   cursor: pointer;
   font: inherit;
   font-size: 12px;
 }
 .language-switcher button[aria-pressed="true"] {
-  background: #087f3e;
-  color: #fff;
+  background: var(--primary-bg);
+  color: var(--primary-text);
 }
 html[lang="bn"] body {
   line-height: 1.65;

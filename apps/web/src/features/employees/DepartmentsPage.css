@@ -6,8 +6,8 @@
 .dept-card {
   appearance: none;
   text-align: left;
-  border: 1px solid #dce5eb;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
   border-radius: 12px;
   padding: 22px;
   min-height: 170px;
@@ -16,15 +16,15 @@
   align-items: flex-start;
   gap: 8px;
   cursor: pointer;
-  color: #183a29;
+  color: var(--ink);
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
 }
 .dept-card:hover,
 .dept-card:focus-visible {
-  border-color: #159d91;
-  box-shadow: 0 0 0 2px #d6f2ee;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 2px var(--focus-halo);
   outline: none;
 }
 .dept-card-title {
@@ -32,31 +32,31 @@
   font-weight: 700;
 }
 .dept-card-bn {
-  color: #607b8a;
+  color: var(--muted);
   font-size: 13px;
 }
 .dept-card-count {
   margin-top: auto;
-  color: #657e8d;
+  color: var(--muted);
   font-size: 13px;
 }
 .dept-card-count strong {
   font-size: 27px;
-  color: #183a29;
+  color: var(--ink);
   margin-right: 4px;
 }
 .dept-card-view {
   font-size: 12px;
-  color: #087f3e;
+  color: var(--ink);
   font-weight: 700;
 }
 .dept-back {
-  background: white;
-  border: 1px solid #dce5eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 14px;
   cursor: pointer;
-  color: #183a29;
+  color: var(--ink);
 }
 .dept-detail-heading {
   display: flex;
@@ -68,11 +68,11 @@
 }
 .dept-detail-heading h2 {
   margin: 0 0 6px;
-  color: #183a29;
+  color: var(--ink);
 }
 .dept-detail-heading p {
   margin: 4px 0;
-  color: #607b8a;
+  color: var(--muted);
 }
 .dept-search {
   display: flex;
@@ -80,13 +80,13 @@
   gap: 7px;
 }
 .dept-search-label {
-  color: #607b8a;
+  color: var(--muted);
   font-size: 12px;
 }
 .dept-search input {
-  border: 1px solid #dce5eb;
+  border: 1px solid var(--border);
   border-radius: 7px;
-  background: white;
+  background: var(--surface);
   padding: 11px 12px;
   min-width: 240px;
   font: inherit;

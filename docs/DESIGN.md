@@ -2,19 +2,23 @@
 
 ## Visual system
 
-The interface uses Payra-inspired green, white surfaces and a pale green-gray background. Maintain the existing visual language rather than introducing a second component theme.
+The interface uses ivory page backgrounds, white surfaces, neutral text and lime interactive accents. Color tokens live in `apps/web/src/index.css`.
 
-| Token               | Value                 | Use                             |
-| ------------------- | --------------------- | ------------------------------- |
-| `--g-700`           | `#087f3e`             | Primary green                   |
-| `--bg`              | `#f3f6f3`             | Page background                 |
-| `--surface`         | `#ffffff`             | Cards and panels                |
-| `--ink`             | `#1d2f25`             | Main text                       |
-| `--muted`           | `#607466`             | Supporting text                 |
-| `--border`          | `#dfe7e1`             | Dividers and control boundaries |
-| `--amber` / `--red` | `#c98219` / `#d6283b` | Caution and destructive states  |
+| Palette       | Value     | Use                                                    |
+| ------------- | --------- | ------------------------------------------------------ |
+| Soft Ivory    | `#F6F5EC` | Application background                                 |
+| Pure White    | `#FFFFFF` | Cards, forms and dialogs                               |
+| Warm Greige   | `#CDCBB7` | Welcome panel and neutral accents                      |
+| Electric Lime | `#BFFF4F` | Primary actions and active navigation                  |
+| Orange        | `#FF6B35` | Pending request accents and the on-leave chart segment |
+| Charcoal      | `#282828` | Primary text and icons                                 |
+| Muted Olive   | `#929487` | Chart accent                                           |
+| Soft Lavender | `#C6A7F2` | Role badges and informational borders                  |
+| Light Border  | `#E2E3DC` | Card borders and dividers                              |
 
-`apps/web/src/styles/theme.css` defines a 4px spacing scale and radius tokens of 10, 14 and 18px plus pill corners. Reuse these tokens. Feature and dashboard styles live next to their components.
+Use the darker control border for inputs and the violet focus token for keyboard focus. Success, warning, error and information use independent text and background tokens. Reserve the lighter olive and greige shades for surfaces and graphics.
+
+`apps/web/src/styles/theme.css` defines the 4px spacing scale and radius tokens of 10, 14 and 18px plus pill corners. Use the scale for control gaps (8 px), related fields (16 px), and section spacing (20–32 px). Page gutters are 16 px on phones, 24 px on tablets, and 36 px on wide screens. Panels use 16 or 24 px of internal padding, with a shared 44 px minimum for primary controls. Feature and dashboard styles live next to their components.
 
 ## CSS ownership
 
@@ -34,7 +38,7 @@ Forms should preserve input after a server error, associate labels with controls
 
 Use the existing `tr`, `useLanguage` and numeric formatting helpers in `src/i18n/`. Check English and Bangla layouts: translated labels may wrap or need more space. Machine import/export column names remain stable even when the interface language changes.
 
-Use semantic buttons, links and headings, visible keyboard focus, descriptive control names and text alongside status colors. Preserve the skip link and usable focus order. Check keyboard navigation and focus restoration for dialogs. These are maintenance expectations, not a claim of a completed accessibility certification.
+Use semantic buttons, links and headings, visible keyboard focus, descriptive control names and text alongside status colors. Preserve the skip link and usable focus order. Check keyboard navigation and focus restoration for dialogs. Check the mobile menu’s focus containment and Escape behavior, and verify arrow-key navigation between profile record tabs.
 
 ## Review a visual change
 

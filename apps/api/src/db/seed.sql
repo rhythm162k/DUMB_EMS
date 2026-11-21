@@ -1,5 +1,5 @@
 -- Minimal, non-personal demo reference data. No employee or login accounts are seeded here.
--- The department list is illustrative (blueprint section 6), not Payra Port's official structure.
+-- These departments are illustrative examples for local development.
 -- Admin can rename or deactivate any of these through the department management API.
 INSERT INTO departments (name_en, name_bn)
 VALUES

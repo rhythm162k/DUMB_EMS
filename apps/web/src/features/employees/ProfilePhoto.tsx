@@ -9,13 +9,18 @@ export default function ProfilePhoto({
   name?: string;
 }) {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const photoUrl = failedUrl === imageUrl ? null : imageUrl;
   return (
-    <div className="profile-photo">
-      {imageUrl && failedUrl !== imageUrl ? (
+    <div
+      className={
+        photoUrl ? "profile-photo" : "profile-photo profile-photo--placeholder"
+      }
+    >
+      {photoUrl ? (
         <img
-          src={imageUrl}
+          src={photoUrl}
           alt={`${name} profile`}
-          onError={() => setFailedUrl(imageUrl)}
+          onError={() => setFailedUrl(photoUrl)}
         />
       ) : (
         <span>{tr(imageUrl ? "Photo unavailable" : "No photo")}</span>

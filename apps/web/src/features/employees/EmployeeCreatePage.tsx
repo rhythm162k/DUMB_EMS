@@ -9,7 +9,7 @@ type Department = { id: string; nameEn: string; nameBn: string | null };
 type DepartmentsResponse = { departments: Department[] };
 type CreatedResponse = {
   employee: { id: string; officialEmployeeId: string } | null;
-  temporaryPassword: string;
+  temporaryPassword?: string;
   message: string;
 };
 type FormValues = {
@@ -87,7 +87,9 @@ export default function EmployeeCreatePage() {
       });
     },
     onSuccess: async (result) => {
-      setTemporaryPassword(result.temporaryPassword);
+      setTemporaryPassword(result.temporaryPassword ?? "");
+      if (import.meta.env.MODE === "worker" && result.employee)
+        navigate(`/employees/${result.employee.id}`);
       await queryClient.invalidateQueries({ queryKey: ["employees"] });
     },
   });
@@ -160,7 +162,9 @@ export default function EmployeeCreatePage() {
           <h1>{tr("Add employee")}</h1>
           <p className="page-description">
             {tr(
-              "Add a new employee and their sign-in account. The employee ID cannot be changed later.",
+              import.meta.env.MODE === "worker"
+                ? "Choose the employee ID carefully. It cannot be changed later."
+                : "Add a new employee and their sign-in account. The employee ID cannot be changed later.",
             )}
           </p>
         </div>
@@ -387,11 +391,13 @@ export default function EmployeeCreatePage() {
             {tr("Cancel")}
           </Link>
         </div>
-        <p className="form-note">
-          {tr(
-            "A temporary password is made automatically. The employee must change it at first sign-in.",
-          )}
-        </p>
+        {import.meta.env.MODE !== "worker" && (
+          <p className="form-note">
+            {tr(
+              "A temporary password is made automatically. The employee must change it at first sign-in.",
+            )}
+          </p>
+        )}
       </form>
     </section>
   );

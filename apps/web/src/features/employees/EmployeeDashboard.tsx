@@ -15,7 +15,11 @@ function todayLabel() {
   );
 }
 
-export default function EmployeeDashboard() {
+export default function EmployeeDashboard({
+  readOnly = false,
+}: {
+  readOnly?: boolean;
+}) {
   const stats = useQuery({
     queryKey: ["overview-stats", "EMPLOYEE"],
     queryFn: () => apiRequest<Stats>("/overview/stats"),
@@ -30,7 +34,7 @@ export default function EmployeeDashboard() {
       </header>
 
       <div className="me-layout">
-        <MyProfileCard />
+        <MyProfileCard linkLabel={readOnly ? "My profile" : undefined} />
 
         {stats.isPending ? (
           <div

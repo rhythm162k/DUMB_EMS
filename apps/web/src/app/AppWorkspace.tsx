@@ -28,8 +28,6 @@ import MyProfileCard from "../features/employees/MyProfileCard";
 import SelfServiceProfile from "../features/employees/SelfServiceProfile";
 import LeavePage from "../features/employees/LeavePage";
 import DepartmentsPage from "../features/employees/DepartmentsPage";
-import "../features/employees/EmployeeForms.css";
-import "./Dashboard.css";
 import { BrandBlock, BrandMark } from "./Brand";
 import { Icons } from "./Icons";
 
@@ -55,6 +53,7 @@ type Props = {
   refreshStatus: () => void;
   isRefreshing: boolean;
   onLogout: () => void;
+  demoSettings?: ReactNode;
 };
 
 const createQueryClient = () =>
@@ -199,7 +198,6 @@ function AdminDashboard({
             <section className="dash-panel" aria-labelledby="dash-workforce">
               <div className="dash-panel__head">
                 <h2 id="dash-workforce">{tr("Workforce today")}</h2>
-                <p>{tr("All employee records")}</p>
               </div>
               <div className="dash-ring">
                 <p className="dash-ring__value">
@@ -262,7 +260,7 @@ function AdminDashboard({
                 <li>
                   <Link className="dash-action" to="/data-tools">
                     {Icons.data}
-                    <span>{tr("Upload / download")}</span>
+                    <span>{tr("Import & export")}</span>
                   </Link>
                 </li>
               </ul>
@@ -280,17 +278,17 @@ function AdminDashboard({
   );
 }
 
+function roleLabel(user: AuthUser) {
+  if (user.role === "EMPLOYEE") return "Employee";
+  if (user.adminScope === "DEPARTMENT") return "Department Administrator";
+  return user.isRoot === true ? "Full Administrator" : "Administrator";
+}
+
 function Dashboard({ user }: { user: AuthUser }) {
   return user.role === "ADMIN" ? (
     <AdminDashboard
       fullAdmin={user.adminScope === "FULL"}
-      roleLabel={
-        user.adminScope === "FULL"
-          ? user.isRoot === true
-            ? "Main administrator"
-            : "Full-access administrator"
-          : "Department administrator"
-      }
+      roleLabel={roleLabel(user)}
       showProfile={Boolean(user.employeeRecordId)}
     />
   ) : (
@@ -309,7 +307,7 @@ type NavDef = {
   end?: boolean;
 };
 
-function pageLabel(pathname: string, admin: boolean): string {
+function pageLabel(pathname: string, admin: boolean, demo: boolean): string {
   if (pathname === "/") return "Overview";
   if (pathname === "/employees") return "Employees";
   if (pathname === "/employees/new") return "Add employee";
@@ -318,9 +316,9 @@ function pageLabel(pathname: string, admin: boolean): string {
     "/profile": "My profile",
     "/leave": admin ? "Manage leave" : "My leave",
     "/change-requests": admin ? "Review requests" : "My change requests",
-    "/data-tools": "Upload / download",
+    "/data-tools": "Import & export",
     "/departments": "Departments",
-    "/account": "Account settings",
+    "/account": demo ? "Session settings" : "Account settings",
     "/my-leave": "My leave",
     "/my-requests": "My change requests",
   };
@@ -359,12 +357,14 @@ function UserAvatar({
   );
 }
 
-function Workspace({ user, onLogout }: Props) {
+function Workspace({ user, onLogout, demoSettings }: Props) {
   useLanguage();
   const location = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDialogElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
   const admin = user.role === "ADMIN";
+  const demo = Boolean(demoSettings);
   const fullAdmin = admin && user.adminScope === "FULL";
   // Only the root administrator may grant or change administrator access.
   const rootAdmin = fullAdmin && user.isRoot === true;
@@ -420,7 +420,7 @@ function Workspace({ user, onLogout }: Props) {
           },
           {
             to: "/data-tools",
-            label: "Upload / download",
+            label: "Import & export",
             icon: Icons.data,
           },
         ]
@@ -437,7 +437,7 @@ function Workspace({ user, onLogout }: Props) {
     },
     {
       to: "/account",
-      label: "Account settings",
+      label: demo ? "Session settings" : "Account settings",
       icon: Icons.account,
     },
   ];
@@ -482,15 +482,18 @@ function Workspace({ user, onLogout }: Props) {
 
   useEffect(() => {
     if (!moreOpen) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMoreOpen(false);
+    const menu = menuRef.current;
+    const trigger = moreButtonRef.current;
+    const desktop = window.matchMedia("(min-width: 48rem)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setMoreOpen(false);
     };
-    document.addEventListener("keydown", onKey);
-    document.documentElement.style.overflow = "hidden";
-    closeRef.current?.focus();
+    menu?.showModal();
+    desktop.addEventListener("change", closeOnDesktop);
     return () => {
-      document.removeEventListener("keydown", onKey);
-      document.documentElement.style.overflow = "";
+      menu?.close();
+      desktop.removeEventListener("change", closeOnDesktop);
+      trigger?.focus();
     };
   }, [moreOpen]);
 
@@ -499,17 +502,7 @@ function Workspace({ user, onLogout }: Props) {
       <UserAvatar imageUrl={photoUrl} name={name} />
       <span className="ems-user__text">
         <strong>{name}</strong>
-        <span>
-          {user.role === "ADMIN"
-            ? tr(
-                rootAdmin
-                  ? "Main administrator"
-                  : fullAdmin
-                    ? "Full-access administrator"
-                    : "Department administrator",
-              )
-            : tr(user.role)}
-        </span>
+        <span>{tr(roleLabel(user))}</span>
       </span>
     </div>
   );
@@ -539,15 +532,6 @@ function Workspace({ user, onLogout }: Props) {
             ))}
           </nav>
         </div>
-        <div className="ems-side__foot">
-          <div className="ems-copy">
-            <span className="ems-copy__icon" aria-hidden="true">
-              ©
-            </span>
-            <strong>{tr("PAYRA PORT")}</strong>
-          </div>
-          <p>{tr("Patuakhali, Bangladesh")}</p>
-        </div>
       </aside>
 
       <div className="ems-main">
@@ -557,7 +541,7 @@ function Workspace({ user, onLogout }: Props) {
               <BrandMark />
             </Link>
             <div className="ems-crumb">
-              <strong>{tr(pageLabel(location.pathname, admin))}</strong>
+              <strong>{tr(pageLabel(location.pathname, admin, demo))}</strong>
             </div>
           </div>
           <div className="ems-top__right">
@@ -588,7 +572,7 @@ function Workspace({ user, onLogout }: Props) {
                 )
               }
             />
-            <Route path="/account" element={<AccountPage />} />
+            <Route path="/account" element={demoSettings ?? <AccountPage />} />
             <Route path="/" element={<Dashboard user={user} />} />
             <Route
               path="/employees"
@@ -684,6 +668,7 @@ function Workspace({ user, onLogout }: Props) {
           type="button"
           className="ems-link"
           data-active={moreActive || moreOpen}
+          ref={moreButtonRef}
           aria-haspopup="dialog"
           aria-expanded={moreOpen}
           onClick={() => setMoreOpen(true)}
@@ -694,63 +679,69 @@ function Workspace({ user, onLogout }: Props) {
       </nav>
 
       {moreOpen && (
-        <>
-          <div
-            className="ems-sheet-backdrop"
-            onClick={() => setMoreOpen(false)}
-          />
-          <div
-            className="ems-sheet"
-            role="dialog"
-            aria-modal="true"
-            aria-label={tr("Menu")}
-          >
-            <div className="ems-sheet__grip" aria-hidden="true" />
-            <div className="ems-sheet__head">
-              <div className="ems-user">
-                <UserAvatar imageUrl={photoUrl} name={name} />
-                <span>
-                  <strong>{name}</strong>
-                  <br />
-                  <small>{tr(user.role)}</small>
-                </span>
-              </div>
-              <button
-                ref={closeRef}
-                type="button"
-                className="ems-sheet__close"
-                onClick={() => setMoreOpen(false)}
-                aria-label={tr("Close")}
-              >
-                {Icons.close}
-              </button>
+        <dialog
+          ref={menuRef}
+          className="ems-sheet"
+          aria-label={tr("Menu")}
+          onCancel={(event) => {
+            event.preventDefault();
+            setMoreOpen(false);
+          }}
+          onClick={(event) => {
+            const bounds = event.currentTarget.getBoundingClientRect();
+            if (
+              event.target === event.currentTarget &&
+              (event.clientY < bounds.top ||
+                event.clientX < bounds.left ||
+                event.clientX > bounds.right)
+            )
+              setMoreOpen(false);
+          }}
+        >
+          <div className="ems-sheet__head">
+            <div className="ems-user">
+              <UserAvatar imageUrl={photoUrl} name={name} />
+              <span>
+                <strong>{name}</strong>
+                <br />
+                <small>{tr(roleLabel(user))}</small>
+              </span>
             </div>
-            <nav className="ems-sheet__list" aria-label={tr("Menu")}>
-              {overflow.map((link) => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  className="ems-row"
-                  onClick={() => setMoreOpen(false)}
-                >
-                  {link.icon}
-                  {tr(link.label)}
-                </NavLink>
-              ))}
-              <button
-                type="button"
-                className="ems-row ems-row--danger"
-                onClick={() => {
-                  setMoreOpen(false);
-                  onLogout();
-                }}
-              >
-                {Icons.logout}
-                {tr("Sign out")}
-              </button>
-            </nav>
+            <button
+              autoFocus
+              type="button"
+              className="ems-sheet__close"
+              onClick={() => setMoreOpen(false)}
+              aria-label={tr("Close")}
+            >
+              {Icons.close}
+            </button>
           </div>
-        </>
+          <nav className="ems-sheet__list" aria-label={tr("Menu")}>
+            {overflow.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className="ems-row"
+                onClick={() => setMoreOpen(false)}
+              >
+                {link.icon}
+                {tr(link.label)}
+              </NavLink>
+            ))}
+            <button
+              type="button"
+              className="ems-row ems-row--danger"
+              onClick={() => {
+                setMoreOpen(false);
+                onLogout();
+              }}
+            >
+              {Icons.logout}
+              {tr("Sign out")}
+            </button>
+          </nav>
+        </dialog>
       )}
     </div>
   );

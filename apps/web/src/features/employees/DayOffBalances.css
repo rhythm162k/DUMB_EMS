@@ -41,8 +41,8 @@
   max-width: 440px;
 }
 .day-off-toolbar .search-field:focus-within {
-  box-shadow: 0 0 0 3px var(--g-100);
-  border-color: var(--g-700);
+  box-shadow: 0 0 0 3px var(--focus-halo);
+  border-color: var(--focus);
 }
 .day-off-balances .leave-table-wrap {
   margin-bottom: 0;
@@ -61,7 +61,7 @@
   white-space: normal;
 }
 .day-off-balances .leave-table .day-off-employee {
-  border-bottom: 1px solid #edf1ee;
+  border-bottom: 1px solid var(--border);
   background: var(--surface);
   min-width: 175px;
   font-size: 13px;
@@ -69,12 +69,12 @@
 }
 .day-off-employee-link,
 .day-off-employee-link:visited {
-  color: var(--g-800);
+  color: var(--ink);
   font-weight: 600;
   text-decoration: none;
 }
 .day-off-employee-link:hover {
-  color: var(--g-700);
+  color: var(--ink);
   text-decoration: underline;
 }
 .day-off-employee-code {
@@ -87,24 +87,24 @@
 .day-off-credit {
   display: inline-block;
   border-radius: var(--r-pill);
-  background: var(--g-50);
+  background: var(--surface-muted);
   padding: 3px 10px;
   min-width: 38px;
-  color: var(--g-800);
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
 .day-off-credit--advance {
-  background: var(--amber-tint);
-  color: #80500c;
+  background: var(--warning-bg);
+  color: var(--warning);
 }
 .day-off-notice {
   margin: var(--s-4) 0 0;
-  border: 1px solid var(--g-200);
+  border: 1px solid var(--info-border);
   border-radius: var(--r-sm);
-  background: var(--g-50);
+  background: var(--info-bg);
   padding: var(--s-3) var(--s-4);
-  color: var(--g-800);
+  color: var(--info);
   font-size: 13px;
   line-height: 1.7;
 }

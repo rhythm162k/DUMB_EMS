@@ -73,7 +73,7 @@ export const plainBn: Record<string, string> = {
   "Update this list when public holidays are announced. Changing the list does not change leave totals already recorded.":
     "সরকারি ছুটি ঘোষণা হলে এই তালিকা হালনাগাদ করুন। তালিকা বদলালে আগে সংরক্ষিত ছুটির হিসাব বদলাবে না।",
   "Something went wrong. Please try again. If the problem continues, contact your administrator.":
-    "কাজটি করা যায়নি। আবার চেষ্টা করুন। সমস্যা থাকলে প্রশাসকের সঙ্গে যোগাযোগ করুন।",
+    "কাজটি করা যায়নি। আবার চেষ্টা করুন।",
   "Please check the information you entered and try again.":
     "আপনার দেওয়া তথ্য যাচাই করে আবার চেষ্টা করুন।",
   "You do not have permission to do this.": "এই কাজ করার অনুমতি আপনার নেই।",
@@ -232,8 +232,12 @@ export const plainBn: Record<string, string> = {
     "ভুল তথ্য দেওয়া হয়েছে। স্প্রেডশিট যাচাই করে আবার চেষ্টা করুন।",
   "Records changed during import. Preview the file again.":
     "সংরক্ষণের সময় তথ্য বদলে গেছে। ফাইলটি আবার দেখে নিন।",
+  "This employee has an overlapping leave record.":
+    "এই কর্মচারীর একই সময়ে অন্য একটি ছুটির রেকর্ড রয়েছে।",
+  "The demo accepts up to 12 rows per import.":
+    "ডেমোতে একবারে সর্বোচ্চ ১২টি সারি আমদানি করা যায়।",
   "Preview expired or already committed. Upload the file again.":
-    "প্রিভিউয়ের সময় শেষ অথবা ফাইলটি আগেই সংরক্ষিত হয়েছে। ফাইলটি আবার আপলোড করুন।",
+    "নতুন প্রিভিউ শুরু করতে ফাইলটি আবার আপলোড করুন।",
   "Formulas are not accepted. Paste values before importing.":
     "সূত্র (ফর্মুলা) গ্রহণ করা হয় না। শুধু মান বসিয়ে আবার চেষ্টা করুন।",
   "Store employee IDs as text so leading zeroes are kept.":

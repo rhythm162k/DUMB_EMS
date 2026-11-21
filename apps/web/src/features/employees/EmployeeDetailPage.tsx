@@ -18,6 +18,7 @@ type Employee = {
   id: string;
   profileImageUrl: string | null;
   officialEmployeeId: string;
+  version?: number;
   firstNameEn: string;
   lastNameEn: string | null;
   fullNameBn: string | null;
@@ -41,6 +42,8 @@ type Employee = {
     role: string;
     adminScope: "FULL" | "DEPARTMENT" | null;
     isRoot?: boolean;
+    entryPersona?: boolean;
+    version?: number;
     administeredDepartmentId: string | null;
     accountStatus: string;
     mustChangePassword: boolean;
@@ -50,6 +53,7 @@ type Employee = {
 type Spouse = {
   id: string;
   spouseName: string;
+  version?: number;
   spouseOccupation: string | null;
   spouseDateOfBirth: string | null;
   spouseNationalId: string | null;
@@ -119,6 +123,7 @@ export default function EmployeeDetailPage({
   const { employeeId: routeEmployeeId = "" } = useParams();
   const employeeId = ownProfile ? (employeeRecordId ?? "") : routeEmployeeId;
   // The signed-in administrator's own employee record (also passed on the directory route).
+  const demo = import.meta.env.MODE === "worker";
   const isSelf = Boolean(employeeRecordId) && employeeId === employeeRecordId;
   const queryClient = useQueryClient();
   const detail = useQuery({
@@ -177,7 +182,13 @@ export default function EmployeeDetailPage({
       }
       return apiRequest<{ employee: Employee; changed: boolean }>(
         `/admin/employees/${employeeId}`,
-        { method: "PATCH", body: JSON.stringify(payload) },
+        {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+          headers: detail.data?.employee.version
+            ? { "If-Match": String(detail.data.employee.version) }
+            : undefined,
+        },
       );
     },
     onSuccess: async () => {
@@ -204,6 +215,9 @@ export default function EmployeeDetailPage({
         `/admin/employees/${employeeId}/status`,
         {
           method: "PATCH",
+          headers: detail.data?.employee.version
+            ? { "If-Match": String(detail.data.employee.version) }
+            : undefined,
           body: JSON.stringify(payload),
         },
       );
@@ -269,12 +283,6 @@ export default function EmployeeDetailPage({
       </section>
     );
   const employee = detail.data.employee;
-  if (!form)
-    return (
-      <section className="workspace-page">
-        <p>{tr("Preparing employee record…")}</p>
-      </section>
-    );
   // Only the root administrator can change the root record. Everyone else sees it exactly
   // like an employee sees their own profile: view-only, with no forms to submit.
   if (
@@ -313,6 +321,12 @@ export default function EmployeeDetailPage({
         />
       </section>
     );
+  if (!form)
+    return (
+      <section className="workspace-page">
+        <p>{tr("Preparing employee record…")}</p>
+      </section>
+    );
   return (
     <section className="workspace-page">
       <div className="page-heading page-heading-row">
@@ -332,8 +346,10 @@ export default function EmployeeDetailPage({
           {tr(backLabel)}
         </Link>
       </div>
-      <RecordSectionLinks showAccount={!isSelf} />
-      {ownProfile && (
+      <RecordSectionLinks
+        showAccount={!isSelf && (!demo || !employee.account?.entryPersona)}
+      />
+      {(ownProfile || demo) && (
         <ProfileImageEditor
           imageUrl={employee.profileImageUrl}
           endpoint={`/admin/employees/${employeeId}/profile-image`}
@@ -354,20 +370,24 @@ export default function EmployeeDetailPage({
         </div>
         <div>
           <span>{tr("Employment status")}</span>
-          <strong>{employee.employmentStatus.replaceAll("_", " ")}</strong>
+          <strong>{tr(employee.employmentStatus)}</strong>
         </div>
         <div>
           <span>{tr("Account status")}</span>
-          <strong>{employee.account?.accountStatus ?? "—"}</strong>
-        </div>
-        <div>
-          <span>{tr("First login password change")}</span>
           <strong>
-            {tr(
-              employee.account?.mustChangePassword ? "Required" : "Completed",
-            )}
+            {employee.account ? tr(employee.account.accountStatus) : "—"}
           </strong>
         </div>
+        {!demo && (
+          <div>
+            <span>{tr("First login password change")}</span>
+            <strong>
+              {tr(
+                employee.account?.mustChangePassword ? "Required" : "Completed",
+              )}
+            </strong>
+          </div>
+        )}
       </div>
       <form
         className="employee-form"
@@ -602,9 +622,13 @@ export default function EmployeeDetailPage({
         spouse={detail.data.spouse}
         departments={departments.data?.departments ?? []}
       />
-      {isSelf ? (
+      {isSelf || (demo && employee.account?.entryPersona) ? (
         <p className="field-help">
-          {tr("You cannot change your own employment or account status.")}
+          {tr(
+            isSelf
+              ? "You cannot change your own employment or account status."
+              : "Employment and account status are fixed for this profile.",
+          )}
         </p>
       ) : (
         <section
@@ -704,7 +728,7 @@ export default function EmployeeDetailPage({
               </button>
             </div>
           </form>
-          {employee.account && employee.account.role !== "ADMIN" && (
+          {!demo && employee.account && employee.account.role !== "ADMIN" && (
             <div className="password-reset-panel">
               <div>
                 <h3>{tr("Reset login password")}</h3>
@@ -725,7 +749,9 @@ export default function EmployeeDetailPage({
                 onClick={() => {
                   if (
                     window.confirm(
-                      "Give this employee a new temporary password? They will be signed out.",
+                      tr(
+                        "Give this employee a new temporary password? They will be signed out.",
+                      ),
                     )
                   ) {
                     setTemporaryPassword("");
@@ -775,12 +801,14 @@ export default function EmployeeDetailPage({
       {rootAdmin &&
         !ownProfile &&
         employee.account &&
-        !employee.account.isRoot && (
+        !employee.account.isRoot &&
+        !employee.account.entryPersona && (
           <AdminAccessForm
             key={employee.id}
             employeeId={employee.id}
             accessLevel={employee.account.adminScope}
             departmentId={employee.account.administeredDepartmentId}
+            version={employee.account.version}
           />
         )}
     </section>

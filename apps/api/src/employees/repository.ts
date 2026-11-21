@@ -1,41 +1,9 @@
 import { employeeScopeSql } from "../auth/scope.js";
 import { pool } from "../config/database.js";
 
-export type EmployeeDetailRow = {
-  id: string;
-  official_employee_id: string;
-  employment_status: string;
-  first_name_en: string;
-  last_name_en: string | null;
-  full_name_bn: string | null;
-  date_of_birth: string | null;
-  gender: string | null;
-  blood_group: string | null;
-  national_id: string | null;
-  phone: string | null;
-  email: string | null;
-  present_address: string | null;
-  permanent_address: string | null;
-  designation: string | null;
-  joining_date: string | null;
-  father_name: string | null;
-  mother_name: string | null;
-  religion: string | null;
-  marital_status: string | null;
-  profile_image_key: string | null;
-  created_at: Date;
-  updated_at: Date;
-  department_id: string | null;
-  department_name_en: string | null;
-  department_name_bn: string | null;
-  account_role: "ADMIN" | "EMPLOYEE" | null;
-  admin_scope: "FULL" | "DEPARTMENT" | null;
-  account_is_root: boolean | null;
-  administered_department_id: string | null;
-  account_status: string | null;
-  must_change_password: boolean | null;
-  last_login_at: Date | null;
-};
+import type { EmployeeDetailRow, EmployeeListRow } from "./types.js";
+
+export type { EmployeeDetailRow, EmployeeListRow } from "./types.js";
 
 // DATE columns are formatted in SQL so the pg driver cannot shift them by the
 // server timezone when converting to JavaScript Date objects.
@@ -92,23 +60,6 @@ export type EmployeeListFilters = {
   employmentStatus?: string;
   page: number;
   pageSize: number;
-};
-
-type EmployeeListRow = {
-  id: string;
-  official_employee_id: string;
-  first_name_en: string;
-  last_name_en: string | null;
-  full_name_bn: string | null;
-  designation: string | null;
-  employment_status: string;
-  department_id: string | null;
-  department_name_en: string | null;
-  department_name_bn: string | null;
-  account_role: "ADMIN" | "EMPLOYEE" | null;
-  admin_scope: "FULL" | "DEPARTMENT" | null;
-  administered_department_id: string | null;
-  account_status: string | null;
 };
 
 // Escape LIKE wildcards so a search for "%" or "_" matches the literal character.
@@ -170,5 +121,3 @@ export async function listEmployees(
   const total = Number(countResult.rows[0]?.total ?? 0);
   return { rows: rowsResult.rows, total };
 }
-
-export type { EmployeeListRow };

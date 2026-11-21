@@ -6,7 +6,13 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["**/dist/**", "**/node_modules/**", "**/coverage/**"]),
+  globalIgnores([
+    "**/dist/**",
+    "**/dist-worker/**",
+    "**/.wrangler/**",
+    "**/node_modules/**",
+    "**/coverage/**",
+  ]),
 
   {
     files: ["**/*.{ts,tsx}"],
@@ -33,6 +39,16 @@ export default defineConfig([
       globals: globals.node,
       parserOptions: {
         project: "./apps/api/tsconfig.test.json",
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+
+  {
+    files: ["apps/api/worker/**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./apps/api/worker/tsconfig.json",
         tsconfigRootDir: import.meta.dirname,
       },
     },

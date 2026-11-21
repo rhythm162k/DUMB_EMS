@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import type { RequestHandler, Response } from "express";
 
 // Security boundary: only reviewed public copy is returned, never exception text.
 export const publicMessages = [
@@ -35,6 +35,8 @@ export const publicMessages = [
   "Invalid data entry. Please check your spreadsheet and try again.",
   "Records changed during import. Preview the file again.",
   "Preview expired or already committed. Upload the file again.",
+  "This employee has an overlapping leave record.",
+  "The demo accepts up to 12 rows per import.",
   "Formulas are not accepted. Paste values before importing.",
   "Store employee IDs as text so leading zeroes are kept.",
   "Add at least one data row to the template.",
@@ -52,6 +54,36 @@ export function publicErrorMessage(status: number, message?: unknown): string {
   if (status === 415) return publicMessages[7];
   if (status === 429) return publicMessages[8];
   return publicMessages[1];
+}
+
+export function respondToBodyParserError(
+  error: unknown,
+  res: Response,
+): boolean {
+  const type = (error as { type?: string } | null)?.type;
+  if (type === "entity.parse.failed") {
+    res.status(400).json({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "The request body must be valid JSON.",
+      },
+    });
+  } else if (type === "entity.too.large") {
+    res.status(413).json({
+      error: {
+        code: "PAYLOAD_TOO_LARGE",
+        message: "The request body is too large.",
+      },
+    });
+  } else if (
+    type === "encoding.unsupported" ||
+    type === "charset.unsupported"
+  ) {
+    res.status(415).json({ error: { code: "UNSUPPORTED_MEDIA_TYPE" } });
+  } else {
+    return false;
+  }
+  return true;
 }
 
 // Installed before parsers, sessions and routes so their failures are covered too.
@@ -87,6 +119,7 @@ const publicCodes = new Set([
   "ROOT_ADMIN_PROTECTED",
   "CSRF_TOKEN_INVALID",
   "CSRF_TOKEN_MISSING",
+  "DEMO_LIMIT_REACHED",
   "CURRENT_PASSWORD_INVALID",
   "DEPARTMENT_INVALID",
   "DEPARTMENT_NAME_TAKEN",
@@ -96,6 +129,10 @@ const publicCodes = new Set([
   "EMPLOYEE_ID_TAKEN",
   "EMPLOYEE_NOT_ACTIVE",
   "EMPLOYEE_NOT_FOUND",
+  "ENTRY_PERSONA_PROTECTED",
+  "CONFLICT",
+  "EXPORT_LIMIT",
+  "LEAVE_OVERLAP",
   "FORBIDDEN",
   "IMAGE_NOT_FOUND",
   "IMPORT_CONFLICT",
@@ -123,6 +160,7 @@ const publicCodes = new Set([
   "UNAUTHENTICATED",
   "UNSUPPORTED_MEDIA_TYPE",
   "VALIDATION_ERROR",
+  "WORKSPACE_CONFLICT",
 ]);
 
 for (const code of [

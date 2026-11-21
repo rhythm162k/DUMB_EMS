@@ -1,4 +1,10 @@
 export const displayLabels: Record<string, string> = {
+  "Something went wrong. Please try again. If the problem continues, contact your administrator.":
+    "Something went wrong. Please try again.",
+  "Preview expired or already committed. Upload the file again.":
+    "Upload the file again to start a new preview.",
+  "The demo accepts up to 12 rows per import.":
+    "Import up to 12 rows at a time.",
   ADMIN: "Administrator",
   EMPLOYEE: "Employee",
   CREATE: "Add",

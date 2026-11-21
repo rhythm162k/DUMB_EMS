@@ -1,6 +1,23 @@
 # Architecture
 
-## System boundaries
+## Cloudflare portfolio demo
+
+```mermaid
+flowchart LR
+    Browser[Browser with React and Vite] --> Static[Workers Static Assets]
+    Browser -->|same-origin API| Worker[Express on Workers]
+    Browser --> Workbook[Browser Web Worker for spreadsheets]
+    Worker --> D1[(D1 with workspace-scoped records)]
+    Cron[Scheduled cleanup] --> D1
+```
+
+Wrangler serves static assets and forwards API paths to the Worker. The Worker uses the browser's opaque cookie to load identity from D1 and applies workspace, department and role filters. Representative mutations use one D1 batch with session, scope and version checks, domain changes, and audit statements. D1 triggers clone the fictional seed and enforce constraints. Scheduled cleanup removes up to 12 expired workspaces per run. The template remains available to provision the next workspace.
+
+The spreadsheet worker reads CSV/XLSX and creates downloads in the browser. The API validates normalized rows, stores actor-bound previews and commits all selected rows atomically. The browser also resizes photos before requesting an upload. The Worker validates dimensions, size and media type, and restricts delivery to the authorized workspace and role.
+
+The Cloudflare source starts at `apps/api/worker/index.ts`, with the schema in `apps/api/worker/migrations`. Shared validators under `apps/api/src` preserve the rules used by the Node/PostgreSQL implementation. The Worker has its own session, data store and build configuration. See the [demo security controls](SECURITY.md#cloudflare-demo) and [operations](OPERATIONS.md).
+
+## Node/PostgreSQL reference architecture
 
 ```mermaid
 flowchart LR
