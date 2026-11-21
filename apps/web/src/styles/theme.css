@@ -196,12 +196,12 @@ html[lang="bn"] body,
   display: flex;
   flex: 1;
   align-items: center;
-  gap: var(--s-3);
+
   min-width: 0;
 }
 .ems-top__lead .ems-brandmark {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
 }
 .ems-top__lead .ems-icon--brand {
   width: 20px;
