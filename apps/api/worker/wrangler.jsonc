@@ -33,10 +33,9 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "ems-demo-local",
+      "database_name": "ems-demo-staging",
       "migrations_dir": "migrations",
-      // Synthetic ID. The checked-in preview only uses local storage.
-      "database_id": "00000000-0000-4000-8000-000000000000",
+      "database_id": "99e191f8-5ddd-42df-aab6-e5f411a37c6e",
       "remote": false,
     },
   ],
