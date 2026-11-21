@@ -21,7 +21,7 @@ async function measure(larger) {
       },
     ],
   });
-  const worker = server.getWorker("ems-portfolio-demo");
+  const worker = server.getWorker("dumb-ems");
   try {
     await server.listen();
     await worker.applyD1Migrations("DB");

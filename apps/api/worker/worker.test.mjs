@@ -9,7 +9,7 @@ const server = createTestHarness({
 });
 let url;
 let db;
-const worker = server.getWorker("ems-portfolio-demo");
+const worker = server.getWorker("dumb-ems");
 
 before(async () => {
   ({ url } = await server.listen());

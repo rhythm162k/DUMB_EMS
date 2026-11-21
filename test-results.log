@@ -1,0 +1,726 @@
+
+> ems@1.0.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.1 [39m[90m/Users/md.sami-elbasharrhythm/Desktop/onGoing/Work/ems_demo[39m
+
+[90mstderr[2m | apps/api/test/admin-schema-check.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+[90mstderr[2m | apps/api/test/admin-schema-check.test.ts
+[22m[39m◇ injected env (0) from .env
+
+ [31m❯[39m apps/api/test/admin-schema-check.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[32m 70[2mms[22m[39m
+   [31m❯[39m schema compatibility check (readiness) [2m(2)[22m
+[31m     [31m×[31m reports a migrated schema as compatible[39m[32m 47[2mms[22m[39m
+[31m     [31m×[31m reports an un-migrated database as behind the release, then clean after migrating[39m[32m 6[2mms[22m[39m
+   [31m❯[39m single-administrator restriction removal [2m(3)[22m
+[31m     [31m×[31m is detected and removed even when the legacy index has a different name[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m removes a unique-constraint form of the restriction[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m leaves unrelated unique indexes alone[39m[32m 4[2mms[22m[39m
+[90mstderr[2m | apps/api/test/admin-scope-migration.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/admin-scope-migration.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 27[2mms[22m[39m
+[31m   [31m×[31m migrates legacy accounts without data loss, removes the single-admin index, and reruns safely[39m[32m 19[2mms[22m[39m
+[31m   [31m×[31m root migration marks only the oldest active full admin, is repeatable, and enforces one root[39m[32m 6[2mms[22m[39m
+[90mstderr[2m | apps/api/test/data-workbooks.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+[90mstderr[2m | apps/api/test/data-workbooks.test.ts
+[22m[39m◇ injected env (0) from .env
+
+ [31m❯[39m apps/api/test/data-workbooks.test.ts [2m([22m[2m17 tests[22m[2m | [22m[33m17 skipped[39m[2m)[22m[32m 19[2mms[22m[39m
+   [2m[90m↓[39m[22m Full PDS data tools [2m(10)[22m
+     [2m[90m↓[39m[22m exports only the employee profile/PDS and masks sensitive data in CSV and XLSX
+     [2m[90m↓[39m[22m supports deliberate Admin unmasking, selection and filtering and audits scope
+     [2m[90m↓[39m[22m rejects an invalid template format
+     [2m[90m↓[39m[22m keeps anonymous, employee and temporary-password sessions out of Admin tools
+     [2m[90m↓[39m[22m previews without mutation, commits selected rows, and blocks replay
+     [2m[90m↓[39m[22m imports XLSX profile and child records transactionally, without JSON entry
+     [2m[90m↓[39m[22m rejects an invalid selected row without partially creating valid rows
+     [2m[90m↓[39m[22m rejects stale updates and applies valid selected updates
+     [2m[90m↓[39m[22m rejects invalid record UUIDs and unavailable child targets with row errors
+     [2m[90m↓[39m[22m rejects expired previews and untrusted uploads
+   [2m[90m↓[39m[22m Import template download [2m(7)[22m
+     [2m[90m↓[39m[22m has the Departments sheet and one sample row per data sheet, and no instructions or rules sheets
+     [2m[90m↓[39m[22m stores employee ID and phone columns as text
+     [2m[90m↓[39m[22m lists the active departments from the database
+     [2m[90m↓[39m[22m has a CSV header and one sample row in the same column order
+     [2m[90m↓[39m[22m never imports the sample rows, but accepts them once the ID is replaced
+     [2m[90m↓[39m[22m gives a department administrator only their own department
+     [2m[90m↓[39m[22m keeps the template out of reach of employees and anonymous users
+[90mstderr[2m | apps/api/test/employee-records.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/employee-records.test.ts [2m([22m[2m17 tests[22m[2m | [22m[33m17 skipped[39m[2m)[22m[32m 17[2mms[22m[39m
+   [2m[90m↓[39m[22m Admin PDS record sections: create, read, update, delete [2m(8)[22m
+     [2m[90m↓[39m[22m manages qualifications records end to end
+     [2m[90m↓[39m[22m manages training records end to end
+     [2m[90m↓[39m[22m manages service-history records end to end
+     [2m[90m↓[39m[22m manages posting-history records end to end
+     [2m[90m↓[39m[22m manages memberships records end to end
+     [2m[90m↓[39m[22m manages publications records end to end
+     [2m[90m↓[39m[22m clears optional values with null and keeps required values
+     [2m[90m↓[39m[22m audits create, update and delete without writing any field values
+   [2m[90m↓[39m[22m Admin PDS record validation and isolation [2m(8)[22m
+     [2m[90m↓[39m[22m rejects missing required fields and null for required fields
+     [2m[90m↓[39m[22m rejects unknown keys so ownership and ids cannot be mass-assigned
+     [2m[90m↓[39m[22m rejects invalid dates, years and URLs
+     [2m[90m↓[39m[22m checks the date order against the stored value on update
+     [2m[90m↓[39m[22m rejects an unknown department in a posting
+     [2m[90m↓[39m[22m treats another employee's record as not found
+     [2m[90m↓[39m[22m rejects unknown sections, malformed IDs and unknown employees
+     [2m[90m↓[39m[22m denies employees and anonymous callers
+   [2m[90m↓[39m[22m Employee sees only their own PDS records [2m(1)[22m
+     [2m[90m↓[39m[22m returns the signed-in employee's records in the own-profile response
+[90mstderr[2m | apps/api/test/day-off-balances.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+[90mstderr[2m | apps/api/test/day-off-balances.test.ts
+[22m[39m◇ injected env (0) from .env
+
+ [31m❯[39m apps/api/test/day-off-balances.test.ts [2m([22m[2m7 tests[22m[2m | [22m[33m7 skipped[39m[2m)[22m[32m 15[2mms[22m[39m
+   [2m[90m↓[39m[22m Day-off accrual [2m(7)[22m
+     [2m[90m↓[39m[22m earns only whole credits, carries progress and allows borrowing
+     [2m[90m↓[39m[22m protects admin access and scopes employee data regardless of supplied IDs
+     [2m[90m↓[39m[22m counts from joining across calendar months, excluding Fridays/Saturdays and public holidays
+     [2m[90m↓[39m[22m does not double-exclude holidays on weekends, nor accrue before a future joining date
+     [2m[90m↓[39m[22m deducts all leave types, excludes leave from accrual and permits negative credit
+     [2m[90m↓[39m[22m updates balances after corrections and cancellations
+     [2m[90m↓[39m[22m keeps future leave separate and excludes holiday/weekend-only leave
+[90mstderr[2m | apps/api/test/admin-scopes.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/admin-scopes.test.ts [2m([22m[2m10 tests[22m[2m | [22m[33m10 skipped[39m[2m)[22m[32m 15[2mms[22m[39m
+   [2m[90m↓[39m[22m Administrator scopes [2m(10)[22m
+     [2m[90m↓[39m[22m preserves the existing full admin, validates assignment and audits actor/target/scope
+     [2m[90m↓[39m[22m lets only the root administrator manage administrator access; delegated full admins keep operational power
+     [2m[90m↓[39m[22m lets root and full-access administrators change a department administrator's status, never their own or the root's
+     [2m[90m↓[39m[22m scopes pagination, searches, totals, dashboards and balances before aggregation
+     [2m[90m↓[39m[22m blocks ID tampering, other administrators, global settings, transfers and role changes
+     [2m[90m↓[39m[22m scopes related records, leave, change requests and image delivery
+     [2m[90m↓[39m[22m exports only scoped employees and related records in CSV and Excel, and keeps self export separate
+     [2m[90m↓[39m[22m rejects cross-department creation/imports/updates and rechecks previews at commit
+     [2m[90m↓[39m[22m follows current department for historical records and existing sessions
+     [2m[90m↓[39m[22m enforces role/scope consistency and the department foreign key in PostgreSQL
+[90mstderr[2m | apps/api/test/employee-edit.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/employee-edit.test.ts [2m([22m[2m11 tests[22m[2m | [22m[33m11 skipped[39m[2m)[22m[32m 17[2mms[22m[39m
+   [2m[90m↓[39m[22m Admin direct employee edit [2m(11)[22m
+     [2m[90m↓[39m[22m updates only the submitted fields and leaves the rest untouched
+     [2m[90m↓[39m[22m writes an audit event with field names only, never the values
+     [2m[90m↓[39m[22m clears optional fields when null or an empty string is sent
+     [2m[90m↓[39m[22m reports no change and writes no audit event for a no-op edit
+     [2m[90m↓[39m[22m changes the department to an active department only
+     [2m[90m↓[39m[22m still allows other edits after the employee's own department is deactivated
+     [2m[90m↓[39m[22m rejects any attempt to change the official employee ID
+     [2m[90m↓[39m[22m rejects unknown and protected keys so roles and statuses cannot be mass-assigned
+     [2m[90m↓[39m[22m validates field values on the server
+     [2m[90m↓[39m[22m rejects malformed and unknown employee record IDs
+     [2m[90m↓[39m[22m denies employees and anonymous callers
+[90mstderr[2m | apps/api/test/profile-image.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/profile-image.test.ts [2m([22m[2m12 tests[22m[2m | [22m[33m12 skipped[39m[2m)[22m[32m 19[2mms[22m[39m
+   [2m[90m↓[39m[22m Employee profile image [2m(9)[22m
+     [2m[90m↓[39m[22m lets an employee upload their own PNG and serves it back unchanged
+     [2m[90m↓[39m[22m replaces the image, deletes the old file and revokes the old URL
+     [2m[90m↓[39m[22m accepts WebP
+     [2m[90m↓[39m[22m rejects SVG, mislabelled files, empty bodies and non-image types without storing anything
+     [2m[90m↓[39m[22m rejects an image over 5 MB with 413 and accepts one of exactly 5 MB
+     [2m[90m↓[39m[22m requires sign-in, a CSRF token and an active employee account
+     [2m[90m↓[39m[22m is only readable by the owner and the Admin; other employees and odd keys get 404
+     [2m[90m↓[39m[22m audits uploads and removals with the format only
+     [2m[90m↓[39m[22m lets the employee remove their image; a second removal is 404
+   [2m[90m↓[39m[22m Admin profile image management [2m(3)[22m
+     [2m[90m↓[39m[22m lets the Admin upload and remove any employee's image
+     [2m[90m↓[39m[22m returns 404 for an unknown employee and stores nothing, and 400 for a malformed ID
+     [2m[90m↓[39m[22m is not available to employees
+[90mstderr[2m | apps/api/test/employees-admin.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/employees-admin.test.ts [2m([22m[2m14 tests[22m[2m | [22m[33m14 skipped[39m[2m)[22m[32m 16[2mms[22m[39m
+   [2m[90m↓[39m[22m Admin employee creation [2m(7)[22m
+     [2m[90m↓[39m[22m creates an employee and account with a one-time temporary password
+     [2m[90m↓[39m[22m preserves leading zeros in the employee ID
+     [2m[90m↓[39m[22m rejects a duplicate employee ID
+     [2m[90m↓[39m[22m validates required fields on the server
+     [2m[90m↓[39m[22m rejects unknown fields so roles and statuses cannot be mass-assigned
+     [2m[90m↓[39m[22m rejects an unknown or inactive department without creating anything
+     [2m[90m↓[39m[22m denies employees and anonymous callers
+   [2m[90m↓[39m[22m Admin employee list and detail [2m(7)[22m
+     [2m[90m↓[39m[22m lists employees with pagination metadata and without sensitive fields
+     [2m[90m↓[39m[22m searches by ID and by name, case-insensitively
+     [2m[90m↓[39m[22m treats LIKE wildcards in the search text as literal characters
+     [2m[90m↓[39m[22m filters by department and employment status
+     [2m[90m↓[39m[22m rejects invalid list filters
+     [2m[90m↓[39m[22m returns the full detail for one employee, including account state
+     [2m[90m↓[39m[22m rejects malformed and unknown employee record IDs
+[90mstderr[2m | apps/api/test/departments-admin.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/departments-admin.test.ts [2m([22m[2m10 tests[22m[2m | [22m[33m10 skipped[39m[2m)[22m[32m 16[2mms[22m[39m
+   [2m[90m↓[39m[22m Admin department management [2m(10)[22m
+     [2m[90m↓[39m[22m lists all departments with employee counts
+     [2m[90m↓[39m[22m creates a department and writes an audit event
+     [2m[90m↓[39m[22m rejects a duplicate English name
+     [2m[90m↓[39m[22m validates the create body
+     [2m[90m↓[39m[22m renames a department and clears its Bangla name
+     [2m[90m↓[39m[22m rejects renaming to an existing name
+     [2m[90m↓[39m[22m reports no change and writes no audit event for a no-op update
+     [2m[90m↓[39m[22m deactivating hides a department from dropdowns and new assignments, and reactivating restores it
+     [2m[90m↓[39m[22m validates the update body and IDs
+     [2m[90m↓[39m[22m denies employees and anonymous callers
+[90mstderr[2m | apps/api/test/requests-leave.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/requests-leave.test.ts [2m([22m[2m8 tests[22m[2m | [22m[33m8 skipped[39m[2m)[22m[32m 15[2mms[22m[39m
+   [2m[90m↓[39m[22m Change approval workflow [2m(5)[22m
+     [2m[90m↓[39m[22m keeps proposals separate until approval and prevents a second decision
+     [2m[90m↓[39m[22m protects identity fields and rejects stale proposals without overwriting
+     [2m[90m↓[39m[22m supports withdrawal and blocks employee review endpoints
+     [2m[90m↓[39m[22m creates a spouse through approval and refuses overwriting an existing spouse
+     [2m[90m↓[39m[22m approves field-based PDS requests and enforces record ownership
+   [2m[90m↓[39m[22m Leave calculation and isolation [2m(3)[22m
+     [2m[90m↓[39m[22m counts inclusive days, excludes configured holidays and preserves their snapshot
+     [2m[90m↓[39m[22m blocks overlap and employee writes; requires reasons for corrections and cancellations
+     [2m[90m↓[39m[22m returns only the signed-in employee’s leave records regardless of supplied IDs
+[90mstderr[2m | apps/api/test/auth-lifecycle.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/auth-lifecycle.test.ts [2m([22m[2m3 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[32m 15[2mms[22m[39m
+   [2m[90m↓[39m[22m Authentication and session lifecycle [2m(3)[22m
+     [2m[90m↓[39m[22m allows an admin to sign in but requires a first-login password change
+     [2m[90m↓[39m[22m validates and completes the first-login password change
+     [2m[90m↓[39m[22m destroys the session on logout
+[90mstderr[2m | apps/api/test/employee-status.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/employee-status.test.ts [2m([22m[2m9 tests[22m[2m | [22m[33m9 skipped[39m[2m)[22m[32m 17[2mms[22m[39m
+   [2m[90m↓[39m[22m Employment and account status management [2m(9)[22m
+     [2m[90m↓[39m[22m suspending an employee disables the account and revokes live sessions
+     [2m[90m↓[39m[22m writes an audit event with the reason and only non-sensitive metadata
+     [2m[90m↓[39m[22m restoring employment does not silently re-enable the account
+     [2m[90m↓[39m[22m re-enabling the account restores sign-in
+     [2m[90m↓[39m[22m rejects an active account for a non-active employee
+     [2m[90m↓[39m[22m reports no change and writes no audit event for a no-op request
+     [2m[90m↓[39m[22m validates the request body
+     [2m[90m↓[39m[22m protects the single Admin account from status changes
+     [2m[90m↓[39m[22m denies employees and anonymous callers
+[90mstderr[2m | apps/api/test/employee-spouse.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/employee-spouse.test.ts [2m([22m[2m10 tests[22m[2m | [22m[33m10 skipped[39m[2m)[22m[32m 18[2mms[22m[39m
+   [2m[90m↓[39m[22m Spouse record [2m(10)[22m
+     [2m[90m↓[39m[22m is refused until the employee's marital status is MARRIED
+     [2m[90m↓[39m[22m returns null when the employee has no spouse record
+     [2m[90m↓[39m[22m creates the spouse record (201) once the employee is MARRIED
+     [2m[90m↓[39m[22m is shown in the admin detail and in the employee's own profile
+     [2m[90m↓[39m[22m keeps a single record: a second PUT updates it, and an identical PUT is a no-op
+     [2m[90m↓[39m[22m audits create and update without writing spouse values
+     [2m[90m↓[39m[22m validates the body: name required, unknown keys rejected, no future birth date
+     [2m[90m↓[39m[22m blocks changing the marital status away from MARRIED while a spouse record exists
+     [2m[90m↓[39m[22m returns 404 when deleting a missing spouse record or addressing an unknown employee
+     [2m[90m↓[39m[22m is Admin-only
+[90mstderr[2m | apps/api/test/admin-access.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/admin-access.test.ts [2m([22m[2m5 tests[22m[2m | [22m[33m5 skipped[39m[2m)[22m[32m 17[2mms[22m[39m
+   [2m[90m↓[39m[22m Admin authorization and employee password management [2m(5)[22m
+     [2m[90m↓[39m[22m prevents employee accounts from accessing admin password reset
+     [2m[90m↓[39m[22m allows an admin to reset an employee password and the employee to change it
+     [2m[90m↓[39m[22m does not re-enable a disabled account when issuing a temporary password
+     [2m[90m↓[39m[22m prevents an admin from resetting a non-active employee
+     [2m[90m↓[39m[22m rejects malformed and unknown employee record IDs
+[90mstderr[2m | apps/api/test/rate-limiting.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/rate-limiting.test.ts [2m([22m[2m2 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m[32m 16[2mms[22m[39m
+   [2m[90m↓[39m[22m Authentication rate limiting [2m(2)[22m
+     [2m[90m↓[39m[22m does not count successful sign-ins toward the limit
+     [2m[90m↓[39m[22m allows ten failed login attempts and blocks the eleventh from the same IP
+[90mstderr[2m | apps/api/test/employee-self-service.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/employee-self-service.test.ts [2m([22m[2m5 tests[22m[2m | [22m[33m5 skipped[39m[2m)[22m[32m 14[2mms[22m[39m
+   [2m[90m↓[39m[22m Employee self-service profile [2m(4)[22m
+     [2m[90m↓[39m[22m returns only the signed-in employee's own profile
+     [2m[90m↓[39m[22m ignores any employee ID the client tries to supply
+     [2m[90m↓[39m[22m requires authentication and an active employee
+     [2m[90m↓[39m[22m blocks the profile when employment is no longer active
+   [2m[90m↓[39m[22m Departments list [2m(1)[22m
+     [2m[90m↓[39m[22m returns active departments to signed-in users only
+[90mstderr[2m | apps/api/test/admin-profile.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/admin-profile.test.ts [2m([22m[2m3 tests[22m[2m | [22m[33m3 skipped[39m[2m)[22m[32m 14[2mms[22m[39m
+   [2m[90m↓[39m[22m Admin own profile [2m(3)[22m
+     [2m[90m↓[39m[22m resolves the admin profile from the session and ignores supplied IDs
+     [2m[90m↓[39m[22m saves personal details without changing the admin role or login ID
+     [2m[90m↓[39m[22m uploads and removes the admin photo while denying employee access
+[90mstderr[2m | apps/api/test/data-export.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/data-export.test.ts [2m([22m[2m6 tests[22m[2m | [22m[33m6 skipped[39m[2m)[22m[32m 15[2mms[22m[39m
+   [2m[90m↓[39m[22m Employee CSV export [2m(6)[22m
+     [2m[90m↓[39m[22m downloads only the session owner's basic columns, ignoring supplied IDs, and audits the export
+     [2m[90m↓[39m[22m quotes CSV values and neutralizes spreadsheet formulas
+     [2m[90m↓[39m[22m blocks anonymous access and employees accessing admin data tools
+     [2m[90m↓[39m[22m blocks self-export until the temporary password has been changed
+     [2m[90m↓[39m[22m blocks a disabled account or inactive employee
+     [2m[90m↓[39m[22m audits admin exports and allows the linked admin personal export
+[90mstderr[2m | apps/api/test/employee-personal.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/employee-personal.test.ts [2m([22m[2m5 tests[22m[2m | [22m[33m5 skipped[39m[2m)[22m[32m 15[2mms[22m[39m
+   [2m[90m↓[39m[22m PDS personal fields (father, mother, religion, marital status) [2m(5)[22m
+     [2m[90m↓[39m[22m creates an employee with the new personal fields
+     [2m[90m↓[39m[22m leaves the new fields empty when they are not supplied
+     [2m[90m↓[39m[22m rejects an invalid marital status on create and on edit
+     [2m[90m↓[39m[22m edits and clears the fields, and the audit event holds field names only
+     [2m[90m↓[39m[22m shows the employee their own values, read-only
+[90mstderr[2m | apps/api/test/foundations.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [31m❯[39m apps/api/test/foundations.test.ts [2m([22m[2m8 tests[22m[2m | [22m[33m8 skipped[39m[2m)[22m[32m 14[2mms[22m[39m
+   [2m[90m↓[39m[22m API foundations and request security [2m(8)[22m
+     [2m[90m↓[39m[22m reports a live API from the health endpoint
+     [2m[90m↓[39m[22m confirms PostgreSQL connectivity from the readiness endpoint
+     [2m[90m↓[39m[22m returns a consistent 404 for unknown routes
+     [2m[90m↓[39m[22m rejects requests from an unapproved browser origin
+     [2m[90m↓[39m[22m rejects unauthenticated access to protected account endpoints
+     [2m[90m↓[39m[22m issues a CSRF token and rejects unsafe requests without it
+     [2m[90m↓[39m[22m answers malformed and oversized JSON bodies with client errors
+     [2m[90m↓[39m[22m validates login input without revealing whether an account exists
+[90mstderr[2m | apps/api/test/data-spreadsheets.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [32m✓[39m apps/api/test/data-spreadsheets.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 190[2mms[22m[39m
+[90mstderr[2m | tests/import-template.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+[90mstderr[2m | tests/import-template.test.ts
+[22m[39m◇ injected env (0) from .env
+
+ [32m✓[39m tests/import-template.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+[90mstderr[2m | tests/public-errors.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [32m✓[39m tests/public-errors.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+[90mstderr[2m | tests/import-friendly.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [32m✓[39m tests/import-friendly.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+[90mstderr[2m | apps/api/test/data-validation.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+[90mstderr[2m | apps/api/test/data-validation.test.ts
+[22m[39m◇ injected env (0) from .env
+
+ [32m✓[39m apps/api/test/data-validation.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+[90mstderr[2m | tests/root-record-access.test.ts
+[22m[39m◇ injected env (12) from .env.test
+
+ [32m✓[39m tests/root-record-access.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 19 [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-access.test.ts[2m [ apps/api/test/admin-access.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/admin-access.test.ts:[2m17:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-profile.test.ts[2m [ apps/api/test/admin-profile.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/admin-profile.test.ts:[2m17:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-scopes.test.ts[2m [ apps/api/test/admin-scopes.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/admin-scopes.test.ts:[2m66:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/auth-lifecycle.test.ts[2m [ apps/api/test/auth-lifecycle.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/auth-lifecycle.test.ts:[2m11:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/data-export.test.ts[2m [ apps/api/test/data-export.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/data-export.test.ts:[2m30:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/data-workbooks.test.ts[2m [ apps/api/test/data-workbooks.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/data-workbooks.test.ts:[2m66:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/day-off-balances.test.ts[2m [ apps/api/test/day-off-balances.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/day-off-balances.test.ts:[2m28:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/departments-admin.test.ts[2m [ apps/api/test/departments-admin.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/departments-admin.test.ts:[2m18:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/employee-edit.test.ts[2m [ apps/api/test/employee-edit.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/employee-edit.test.ts:[2m29:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/employee-personal.test.ts[2m [ apps/api/test/employee-personal.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/employee-personal.test.ts:[2m29:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/employee-records.test.ts[2m [ apps/api/test/employee-records.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/employee-records.test.ts:[2m127:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/employee-self-service.test.ts[2m [ apps/api/test/employee-self-service.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/employee-self-service.test.ts:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/employee-spouse.test.ts[2m [ apps/api/test/employee-spouse.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/employee-spouse.test.ts:[2m21:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/employee-status.test.ts[2m [ apps/api/test/employee-status.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/employee-status.test.ts:[2m28:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/employees-admin.test.ts[2m [ apps/api/test/employees-admin.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/employees-admin.test.ts:[2m34:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/foundations.test.ts[2m [ apps/api/test/foundations.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/foundations.test.ts:[2m9:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/profile-image.test.ts[2m [ apps/api/test/profile-image.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/profile-image.test.ts:[2m55:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/rate-limiting.test.ts[2m [ apps/api/test/rate-limiting.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/rate-limiting.test.ts:[2m9:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/requests-leave.test.ts[2m [ apps/api/test/requests-leave.test.ts ][22m
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m startTestApi apps/api/test/helpers/server.ts:[2m171:3[22m[39m
+[90m [2m❯[22m apps/api/test/requests-leave.test.ts:[2m23:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/26]⎯[22m[39m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-schema-check.test.ts[2m > [22mschema compatibility check (readiness)[2m > [22mreports a migrated schema as compatible
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m prepareDatabase apps/api/test/helpers/database.ts:[2m45:3[22m[39m
+    [90m 43|[39m     [35mnew[39m [33mURL[39m([32m"../../src/db/seed.sql"[39m[33m,[39m [35mimport[39m[33m.[39mmeta[33m.[39murl)[33m,[39m
+    [90m 44|[39m   )[33m;[39m
+    [90m 45|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(schemaPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m   |[39m   [31m^[39m
+    [90m 46|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([35mawait[39m [34mreadFile[39m([34mresolve[39m(seedPath)[33m,[39m [32m"utf8"[39m))[33m;[39m
+    [90m 47|[39m   [35mawait[39m testPool[33m.[39m[34mquery[39m([32m`
+[90m [2m❯[22m apps/api/test/admin-schema-check.test.ts:[2m51:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-schema-check.test.ts[2m > [22mschema compatibility check (readiness)[2m > [22mreports an un-migrated database as behind the release, then clean after migrating
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m withLegacySchema apps/api/test/admin-schema-check.test.ts:[2m31:18[22m[39m
+    [90m 29|[39m   run[33m:[39m (client[33m:[39m [33mPoolClient[39m[33m,[39m schema[33m:[39m string) [33m=>[39m [33mPromise[39m[33m<[39m[35mvoid[39m[33m>[39m[33m,[39m
+    [90m 30|[39m ) {
+    [90m 31|[39m   [35mconst[39m client [33m=[39m [35mawait[39m testPool[33m.[39m[34mconnect[39m()[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m 32|[39m   const schema = `scope_schema_check_${randomUUID().replaceAll("-", ""…
+    [90m 33|[39m   [35mtry[39m {
+[90m [2m❯[22m apps/api/test/admin-schema-check.test.ts:[2m59:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-schema-check.test.ts[2m > [22msingle-administrator restriction removal[2m > [22mis detected and removed even when the legacy index has a different name
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m withLegacySchema apps/api/test/admin-schema-check.test.ts:[2m31:18[22m[39m
+    [90m 29|[39m   run[33m:[39m (client[33m:[39m [33mPoolClient[39m[33m,[39m schema[33m:[39m string) [33m=>[39m [33mPromise[39m[33m<[39m[35mvoid[39m[33m>[39m[33m,[39m
+    [90m 30|[39m ) {
+    [90m 31|[39m   [35mconst[39m client [33m=[39m [35mawait[39m testPool[33m.[39m[34mconnect[39m()[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m 32|[39m   const schema = `scope_schema_check_${randomUUID().replaceAll("-", ""…
+    [90m 33|[39m   [35mtry[39m {
+[90m [2m❯[22m apps/api/test/admin-schema-check.test.ts:[2m81:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-schema-check.test.ts[2m > [22msingle-administrator restriction removal[2m > [22mremoves a unique-constraint form of the restriction
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m withLegacySchema apps/api/test/admin-schema-check.test.ts:[2m31:18[22m[39m
+    [90m 29|[39m   run[33m:[39m (client[33m:[39m [33mPoolClient[39m[33m,[39m schema[33m:[39m string) [33m=>[39m [33mPromise[39m[33m<[39m[35mvoid[39m[33m>[39m[33m,[39m
+    [90m 30|[39m ) {
+    [90m 31|[39m   [35mconst[39m client [33m=[39m [35mawait[39m testPool[33m.[39m[34mconnect[39m()[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m 32|[39m   const schema = `scope_schema_check_${randomUUID().replaceAll("-", ""…
+    [90m 33|[39m   [35mtry[39m {
+[90m [2m❯[22m apps/api/test/admin-schema-check.test.ts:[2m112:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-schema-check.test.ts[2m > [22msingle-administrator restriction removal[2m > [22mleaves unrelated unique indexes alone
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m withLegacySchema apps/api/test/admin-schema-check.test.ts:[2m31:18[22m[39m
+    [90m 29|[39m   run[33m:[39m (client[33m:[39m [33mPoolClient[39m[33m,[39m schema[33m:[39m string) [33m=>[39m [33mPromise[39m[33m<[39m[35mvoid[39m[33m>[39m[33m,[39m
+    [90m 30|[39m ) {
+    [90m 31|[39m   [35mconst[39m client [33m=[39m [35mawait[39m testPool[33m.[39m[34mconnect[39m()[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m 32|[39m   const schema = `scope_schema_check_${randomUUID().replaceAll("-", ""…
+    [90m 33|[39m   [35mtry[39m {
+[90m [2m❯[22m apps/api/test/admin-schema-check.test.ts:[2m130:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-scope-migration.test.ts[2m > [22mmigrates legacy accounts without data loss, removes the single-admin index, and reruns safely
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m apps/api/test/admin-scope-migration.test.ts:[2m12:18[22m[39m
+    [90m 10|[39m     [32m"utf8"[39m[33m,[39m
+    [90m 11|[39m   )[33m;[39m
+    [90m 12|[39m   [35mconst[39m client [33m=[39m [35mawait[39m testPool[33m.[39m[34mconnect[39m()[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m 13|[39m   const schema = `scope_migration_test_${randomUUID().replaceAll("-", …
+    [90m 14|[39m   [35mtry[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/26]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/api/test/admin-scope-migration.test.ts[2m > [22mroot migration marks only the oldest active full admin, is repeatable, and enforces one root
+[31m[1merror[22m: database "ems_test" does not exist[39m
+[90m [2m❯[22m node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[36m [2m❯[22m apps/api/test/admin-scope-migration.test.ts:[2m99:18[22m[39m
+    [90m 97|[39m     [35mawait[39m [34mread[39m([32m"002_root_admin.sql"[39m)[33m,[39m
+    [90m 98|[39m   ][33m;[39m
+    [90m 99|[39m   [35mconst[39m client [33m=[39m [35mawait[39m testPool[33m.[39m[34mconnect[39m()[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m100|[39m   const schema = `root_migration_test_${randomUUID().replaceAll("-", "…
+    [90m101|[39m   [35mtry[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/26]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m21 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (27)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m54 passed[39m[22m[2m | [22m[33m162 skipped[39m[90m (223)[39m
+[2m   Start at [22m 14:36:50
+[2m   Duration [22m 4.86s[2m (import 66%, tests 26%, setup 4%, transform 3%, worker 2%)[22m
+
+[2m    Isolate [22m [33m27 workers spawned[39m[2m · ~67ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~1.74s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
